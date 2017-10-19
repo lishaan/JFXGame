@@ -1,0 +1,6 @@
+[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:31:15: type mismatch;[0m
+[0m[[0m[31merror[0m] [0m[0m found   : List[scalafx.scene.shape.Circle][0m
+[0m[[0m[31merror[0m] [0m[0m required: scalafx.scene.Parent[0m
+[0m[[0m[31merror[0m] [0m[0m			root = List(enemies.head)[0m
+[0m[[0m[31merror[0m] [0m[0m			           ^[0m
+[0m[[0m[31merror[0m] [0m[0mone error found[0m
