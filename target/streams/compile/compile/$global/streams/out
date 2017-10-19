@@ -1,6 +1,35 @@
-[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:31:15: type mismatch;[0m
-[0m[[0m[31merror[0m] [0m[0m found   : List[scalafx.scene.shape.Circle][0m
-[0m[[0m[31merror[0m] [0m[0m required: scalafx.scene.Parent[0m
-[0m[[0m[31merror[0m] [0m[0m			root = List(enemies.head)[0m
-[0m[[0m[31merror[0m] [0m[0m			           ^[0m
-[0m[[0m[31merror[0m] [0m[0mone error found[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:90:51: value centerX is not a member of Nothing[0m
+[0m[[0m[31merror[0m] [0m[0m							val dx = player.centerX.value - enemies(i).centerX.value[0m
+[0m[[0m[31merror[0m] [0m[0m							                                           ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:91:51: value centerY is not a member of Nothing[0m
+[0m[[0m[31merror[0m] [0m[0m							val dy = player.centerY.value - enemies(i).centerY.value[0m
+[0m[[0m[31merror[0m] [0m[0m							                                           ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:95:31: value radius is not a member of Nothing[0m
+[0m[[0m[31merror[0m] [0m[0m							if (dist <= enemies(i).radius.value + player.radius.value) {[0m
+[0m[[0m[31merror[0m] [0m[0m							                       ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:100:19: value centerX is not a member of Nothing[0m
+[0m[[0m[31merror[0m] [0m[0m							enemies(i).centerX = enemies(i).centerX.value + dx / dist * enemySpeed * delta[0m
+[0m[[0m[31merror[0m] [0m[0m							           ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:101:19: value centerY is not a member of Nothing[0m
+[0m[[0m[31merror[0m] [0m[0m							enemies(i).centerY = enemies(i).centerY.value + dy / dist * enemySpeed * delta[0m
+[0m[[0m[31merror[0m] [0m[0m							           ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:104:47: value centerX is not a member of Nothing[0m
+[0m[[0m[31merror[0m] [0m[0m								val dx = b.centerX.value - enemies(i).centerX.value[0m
+[0m[[0m[31merror[0m] [0m[0m								                                      ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:105:47: value centerY is not a member of Nothing[0m
+[0m[[0m[31merror[0m] [0m[0m								val dy = b.centerY.value - enemies(i).centerY.value[0m
+[0m[[0m[31merror[0m] [0m[0m								                                      ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:109:32: value radius is not a member of Nothing[0m
+[0m[[0m[31merror[0m] [0m[0m								if (dist <= enemies(i).radius.value + b.radius.value) {[0m
+[0m[[0m[31merror[0m] [0m[0m								                       ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:155:15: value +:= is not a member of scala.collection.mutable.ArrayBuffer[Nothing][0m
+[0m[[0m[31merror[0m] [0m[0m  Expression does not convert to assignment because:[0m
+[0m[[0m[31merror[0m] [0m[0m    type mismatch;[0m
+[0m[[0m[31merror[0m] [0m[0m     found   : scala.collection.mutable.ArrayBuffer[scalafx.scene.shape.Circle][0m
+[0m[[0m[31merror[0m] [0m[0m     required: scala.collection.mutable.ArrayBuffer[Nothing][0m
+[0m[[0m[31merror[0m] [0m[0m    Note: scalafx.scene.shape.Circle >: Nothing, but class ArrayBuffer is invariant in type A.[0m
+[0m[[0m[31merror[0m] [0m[0m    You may wish to investigate a wildcard type such as `_ >: Nothing`. (SLS 3.2.10)[0m
+[0m[[0m[31merror[0m] [0m[0m    expansion: $anon.this.enemies = $anon.this.enemies.+:(e)[0m
+[0m[[0m[31merror[0m] [0m[0m						enemies +:= e[0m
+[0m[[0m[31merror[0m] [0m[0m						        ^[0m
+[0m[[0m[31merror[0m] [0m[0m9 errors found[0m
