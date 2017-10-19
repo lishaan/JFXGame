@@ -114,6 +114,7 @@ class Game extends JFXApp {
 								}
 							}
 						}
+						indexes = indexes.distinct
 						for (i <- 0 until indexes.length) {
 							enemies.remove(indexes(i))
 							enemiesKilled += 1
