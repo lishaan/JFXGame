@@ -1,35 +1,25 @@
-[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:90:51: value centerX is not a member of Nothing[0m
-[0m[[0m[31merror[0m] [0m[0m							val dx = player.centerX.value - enemies(i).centerX.value[0m
-[0m[[0m[31merror[0m] [0m[0m							                                           ^[0m
-[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:91:51: value centerY is not a member of Nothing[0m
-[0m[[0m[31merror[0m] [0m[0m							val dy = player.centerY.value - enemies(i).centerY.value[0m
-[0m[[0m[31merror[0m] [0m[0m							                                           ^[0m
-[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:95:31: value radius is not a member of Nothing[0m
-[0m[[0m[31merror[0m] [0m[0m							if (dist <= enemies(i).radius.value + player.radius.value) {[0m
-[0m[[0m[31merror[0m] [0m[0m							                       ^[0m
-[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:100:19: value centerX is not a member of Nothing[0m
-[0m[[0m[31merror[0m] [0m[0m							enemies(i).centerX = enemies(i).centerX.value + dx / dist * enemySpeed * delta[0m
-[0m[[0m[31merror[0m] [0m[0m							           ^[0m
-[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:101:19: value centerY is not a member of Nothing[0m
-[0m[[0m[31merror[0m] [0m[0m							enemies(i).centerY = enemies(i).centerY.value + dy / dist * enemySpeed * delta[0m
-[0m[[0m[31merror[0m] [0m[0m							           ^[0m
-[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:104:47: value centerX is not a member of Nothing[0m
-[0m[[0m[31merror[0m] [0m[0m								val dx = b.centerX.value - enemies(i).centerX.value[0m
-[0m[[0m[31merror[0m] [0m[0m								                                      ^[0m
-[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:105:47: value centerY is not a member of Nothing[0m
-[0m[[0m[31merror[0m] [0m[0m								val dy = b.centerY.value - enemies(i).centerY.value[0m
-[0m[[0m[31merror[0m] [0m[0m								                                      ^[0m
-[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:109:32: value radius is not a member of Nothing[0m
-[0m[[0m[31merror[0m] [0m[0m								if (dist <= enemies(i).radius.value + b.radius.value) {[0m
-[0m[[0m[31merror[0m] [0m[0m								                       ^[0m
-[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:155:15: value +:= is not a member of scala.collection.mutable.ArrayBuffer[Nothing][0m
-[0m[[0m[31merror[0m] [0m[0m  Expression does not convert to assignment because:[0m
-[0m[[0m[31merror[0m] [0m[0m    type mismatch;[0m
-[0m[[0m[31merror[0m] [0m[0m     found   : scala.collection.mutable.ArrayBuffer[scalafx.scene.shape.Circle][0m
-[0m[[0m[31merror[0m] [0m[0m     required: scala.collection.mutable.ArrayBuffer[Nothing][0m
-[0m[[0m[31merror[0m] [0m[0m    Note: scalafx.scene.shape.Circle >: Nothing, but class ArrayBuffer is invariant in type A.[0m
-[0m[[0m[31merror[0m] [0m[0m    You may wish to investigate a wildcard type such as `_ >: Nothing`. (SLS 3.2.10)[0m
-[0m[[0m[31merror[0m] [0m[0m    expansion: $anon.this.enemies = $anon.this.enemies.+:(e)[0m
-[0m[[0m[31merror[0m] [0m[0m						enemies +:= e[0m
-[0m[[0m[31merror[0m] [0m[0m						        ^[0m
-[0m[[0m[31merror[0m] [0m[0m9 errors found[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:30:69: value head is not a member of Any[0m
+[0m[[0m[31merror[0m] [0m[0m			val bulletsBufferCounter = BufferCounter(Const.memory("Bullets").head, Const.memory("Bullets").tail)[0m
+[0m[[0m[31merror[0m] [0m[0m			                                                                 ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:30:99: value tail is not a member of Any[0m
+[0m[[0m[31merror[0m] [0m[0m			val bulletsBufferCounter = BufferCounter(Const.memory("Bullets").head, Const.memory("Bullets").tail)[0m
+[0m[[0m[31merror[0m] [0m[0m			                                                                                               ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:31:38: value head is not a member of Any[0m
+[0m[[0m[31merror[0m] [0m[0m			for (i <- Const.memory("Bullets").head to Const.memory("Bullets").tail) { content += new Circle() }[0m
+[0m[[0m[31merror[0m] [0m[0m			                                  ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:31:70: value tail is not a member of Any[0m
+[0m[[0m[31merror[0m] [0m[0m			for (i <- Const.memory("Bullets").head to Const.memory("Bullets").tail) { content += new Circle() }[0m
+[0m[[0m[31merror[0m] [0m[0m			                                                                  ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:33:69: value head is not a member of Any[0m
+[0m[[0m[31merror[0m] [0m[0m			val enemiesBufferCounter = BufferCounter(Const.memory("Enemies").head, Const.memory("Enemies").tail)[0m
+[0m[[0m[31merror[0m] [0m[0m			                                                                 ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:33:99: value tail is not a member of Any[0m
+[0m[[0m[31merror[0m] [0m[0m			val enemiesBufferCounter = BufferCounter(Const.memory("Enemies").head, Const.memory("Enemies").tail)[0m
+[0m[[0m[31merror[0m] [0m[0m			                                                                                               ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:34:38: value head is not a member of Any[0m
+[0m[[0m[31merror[0m] [0m[0m			for (i <- Const.memory("Enemies").head to Const.memory("Enemies").tail) { content += new Circle() }[0m
+[0m[[0m[31merror[0m] [0m[0m			                                  ^[0m
+[0m[[0m[31merror[0m] [0m[0m/Users/lishan/Desktop/OOP/Coursework/JFXGame/src/main/scala/Game.scala:34:70: value tail is not a member of Any[0m
+[0m[[0m[31merror[0m] [0m[0m			for (i <- Const.memory("Enemies").head to Const.memory("Enemies").tail) { content += new Circle() }[0m
+[0m[[0m[31merror[0m] [0m[0m			                                                                  ^[0m
+[0m[[0m[31merror[0m] [0m[0m8 errors found[0m

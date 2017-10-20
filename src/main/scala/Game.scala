@@ -11,35 +11,27 @@ import scalafx.animation.AnimationTimer
 import scalafx.scene.paint.Color
 import scala.collection.mutable.{ArrayBuffer, Map}
 
-class Game extends JFXApp {
+class Game (playerName: String) extends JFXApp {
+	def this() = this("Player")
+
 	stage = new PrimaryStage {
 		title = "Game"
-		scene = new Scene(400, 600) {
+		scene = new Scene(Const.sceneWidth, Const.sceneHeight) {
 			var timerText = new Text(10, 20, "0.0")
-			var enemies: ArrayBuffer[Circle] = ArrayBuffer()
 
-			var bullets: ArrayBuffer[Circle] = ArrayBuffer()
-			val player = new Circle() {
-				centerY = 550
-				centerX = 200
-				radius = 20
-				fill = Color.Blue
-			}
+			var enemies: ArrayBuffer[Enemy] = ArrayBuffer()
+			var bullets: ArrayBuffer[Bullet] = ArrayBuffer()
 
-			content = List(player, timerText)
+			val player = new Player(playerName)
 
-			// Reserve space for bullets
-			var bulletsCounter = 2
-			for (i <- 0 until 20) {
-				content += new Circle()
-			}
+			content = List(player.shape, timerText)
 
-			// Reserve space for enemies
-			var enemiesCounter = 22
-			for (i <- 0 to 10) {
-				content += new Circle()
-			}
-
+			// Memory Allocations
+			val bulletsBufferCounter = BufferCounter(Const.memory("Bullets").head, Const.memory("Bullets").tail)
+			for (i <- Const.memory("Bullets").head to Const.memory("Bullets").tail) { content += new Circle() }
+			
+			val enemiesBufferCounter = BufferCounter(Const.memory("Enemies").head, Const.memory("Enemies").tail)
+			for (i <- Const.memory("Enemies").head to Const.memory("Enemies").tail) { content += new Circle() }
 
 			var keys = Map(
 				"Right" -> false,
@@ -49,34 +41,24 @@ class Game extends JFXApp {
 			onKeyPressed = (e: KeyEvent) => {
 				if (e.code == KeyCode.Right) keys("Right") = true
 				if (e.code == KeyCode.Left) keys("Left") = true
-				if (e.code == KeyCode.Space) {
-					bullets +:= new Circle() {
-						radius = 4
-						centerY = player.centerY.value
-						centerX = player.centerX.value
-						fill = Color.Red
-					}
-
-					content(bulletsCounter) = bullets.head
-					bulletsCounter += 1
-					if (bulletsCounter > 21) {
-						bulletsCounter = 2
-					}
-				}
 			}
 
 			onKeyReleased = (e: KeyEvent) => {
 				if (e.code == KeyCode.Right) keys("Right") = false
 				if (e.code == KeyCode.Left) keys("Left") = false
+				if (e.code == KeyCode.Space) {
+					bullets +:= new Bullet(Position(player.x, player.y))
+					content(bulletsBufferCounter.value) = bullets.head
+					bulletsBufferCounter.increment
+				}
 			}
 
 			var lastTime = -3L
-			var enemiesKilled = 0
-			var enemySpeed = 80
 			val bulletSpeed = 300
-			val playerSpeed = 130
 			var spawnDelay = 1.0
 			var seconds = 0.0
+
+			println(player.name)
 
 			val timer: AnimationTimer = AnimationTimer(t => {
 				if(lastTime > 0) {
@@ -87,46 +69,49 @@ class Game extends JFXApp {
 					// Enemies
 					if (!enemies.isEmpty) {
 						for (i <- 0 until enemies.length) {
-							val dx = player.centerX.value - enemies(i).centerX.value
-							val dy = player.centerY.value - enemies(i).centerY.value
+							val dx = player.x - enemies(i).x
+							val dy = player.y - enemies(i).y
 
 							val dist = math.sqrt(dx*dx + dy*dy)
 
-							if (dist <= enemies(i).radius.value + player.radius.value) {
+							if (dist <= enemies(i).size + player.r) {
 								content += new Text(195, 300, "You Lose!") 
 								timer.stop
 							}
 
-							enemies(i).centerX = enemies(i).centerX.value + dx / dist * enemySpeed * delta
-							enemies(i).centerY = enemies(i).centerY.value + dy / dist * enemySpeed * delta
+							enemies(i).x = enemies(i).x + dx / dist * enemies(i).speed * delta
+							enemies(i).y = enemies(i).y + dy / dist * enemies(i).speed * delta
 
-							for (b <- bullets) {
-								val dx = b.centerX.value - enemies(i).centerX.value
-								val dy = b.centerY.value - enemies(i).centerY.value
+							for (bullet <- bullets) {
+								val dx = bullet.x - enemies(i).x
+								val dy = bullet.y - enemies(i).y
 
 								val dist = math.sqrt(dx*dx + dy*dy)
 
-								if (dist <= enemies(i).radius.value + b.radius.value) {
-									enemies(i).centerY = -20
+								// If Enemy Dies
+								if (dist <= enemies(i).size + bullet.r) {
+									enemies(i).remove
 									if (!indexes.contains(i)) {
 										indexes += i
 									}
 								}
 							}
 						}
+
+						// Enemies Buffer
 						indexes = indexes.distinct
 						for (i <- 0 until indexes.length) {
 							enemies.remove(indexes(i))
-							enemiesKilled += 1
+							player.incrementKills
 						}
 					}
 
-					// Bullets
+					// Bullet Buffer
 					if (!bullets.isEmpty) {
 						indexes = ArrayBuffer()
 						for (i <- 0 until bullets.length) {
-							bullets(i).centerY.value = bullets(i).centerY.value - 4
-							if (bullets(i).centerY.value < (-bullets(i).radius.value)) {
+							bullets(i).y = bullets(i).y - 4
+							if (bullets(i).y < (-bullets(i).r)) {
 								indexes += i
 							}
 						}
@@ -136,25 +121,16 @@ class Game extends JFXApp {
 					}
 
 					// Player
-					if (keys("Right") && (player.centerX.value + player.radius.value < 400)) {
-						player.centerX = player.centerX.value + playerSpeed*delta
-					}
-
-					if (keys("Left") && (player.centerX.value - player.radius.value > 0)) {
-						player.centerX = player.centerX.value - playerSpeed*delta
-					}
+					if (keys("Right")) player.move("Right", delta)
+					if (keys("Left")) player.move("Left", delta)
 
 					// Enemies Spawn
 					spawnDelay -= delta
 					seconds += delta
 					if (spawnDelay < 0) {
-						val e = Circle(math.random * 400, 0, 10)
-						content(enemiesCounter) = e
-						enemiesCounter += 1
-
-						if (enemiesCounter > 32) {
-							enemiesCounter = 22
-						}
+						val e = new Seeker()
+						content(enemiesBufferCounter.value) = e.shape
+						enemiesBufferCounter.increment
 
 						enemies +:= e
 						spawnDelay = 1.0

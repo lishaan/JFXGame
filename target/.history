@@ -20,3 +20,11 @@ exit
 run
 un
 run
+quit
+exit
+run
+ru
+run
+import scala.collection.immutable
+run
+exit
