@@ -23,6 +23,7 @@ class Player (private val _name: String, color: Color) {
 		}
 	}
 
+	def pos = new Position(this.x, this.y)
 	def x = _shape.centerX.value
 	def y = _shape.centerY.value
 	def r = _shape.radius.value
