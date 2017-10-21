@@ -1,7 +1,7 @@
 import scalafx.Includes._
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
-import scalafx.geometry.HPos
+import scalafx.geometry.Bounds
 import scalafx.stage.Stage
 import scalafx.scene.control.{Button, ListView}
 import scalafx.scene.layout.BorderPane
@@ -24,22 +24,20 @@ class Game (val playerName: String) extends Stage {
 	title = "JFXGame - Play"
 	resizable = false
 
-	scene = new Scene(Const.sceneWidth, Const.sceneHeight) {
+	scene = new Scene(Const.gameWidth, Const.gameHeight) {
 		var enemies: ArrayBuffer[Enemy] = ArrayBuffer()
 		var bullets: ArrayBuffer[Bullet] = ArrayBuffer()
 		
-
-		var timerText = new Text(10, 20, "0.0")
-
 		val player = new Player(playerName)
+		var timerText = new Text(10, 20, "0.0")
 
 		content = List(player.shape, timerText)
 
 		// Memory Allocations for Stage.content
-		val bulletsBufferCounter = BufferCounter(Const.memory("Bullets").head, Const.memory("Bullets").tail)
+		val bulletsCounter = BufferCounter(Const.memory("Bullets").head, Const.memory("Bullets").tail)
 		for (i <- Const.memory("Bullets").head to Const.memory("Bullets").tail) { content += new Circle() }
 		
-		val enemiesBufferCounter = BufferCounter(Const.memory("Enemies").head, Const.memory("Enemies").tail)
+		val enemiesCounter = BufferCounter(Const.memory("Enemies").head, Const.memory("Enemies").tail)
 		for (i <- Const.memory("Enemies").head to Const.memory("Enemies").tail) { content += new Circle() }
 
 		var keys = Map(
@@ -57,87 +55,88 @@ class Game (val playerName: String) extends Stage {
 			if (e.code == KeyCode.Left) keys("Left") = false
 			if (e.code == KeyCode.Space) {
 				bullets +:= new Bullet(player.pos)
-				content(bulletsBufferCounter.value) = bullets.head
-				bulletsBufferCounter.increment
+				content(bulletsCounter.value) = bullets.head
+				bulletsCounter.increment
 			}
 		}
 
 		var lastTime = -3L
-		val bulletSpeed = 300
 		var spawnDelay = 1.0
 		var seconds = 0.0
 
 		val timer: AnimationTimer = AnimationTimer(t => {
 			if(lastTime > 0) {
 				val delta = (t-lastTime)/1e9
+				
+				Global.playerPos = player.pos
+				Global.delta = delta
 
 				var indexes: ArrayBuffer[Int] = ArrayBuffer()
 
 				// Enemies
 				if (!enemies.isEmpty) {
+					indexes = ArrayBuffer()
 					for (i <- 0 until enemies.length) {
-						val dx = player.x - enemies(i).x
-						val dy = player.y - enemies(i).y
-
-						val dist = math.sqrt(dx*dx + dy*dy)
-
-						if (dist <= enemies(i).size + player.r) {
-							content += new Text(140, 300, "You Lose!") 
+						// Player death
+						if (enemies(i).intersects(player.bounds)) {
 							timer.stop
+							
+							// TODO: Write ${player.kills} and $seconds to highscore
+							// player.kills
+							// seconds
 
 							root = new BorderPane {
 								center = new Button("Go Back To Main Menu") {
-									layoutX = 120
-									layoutY = 350
 									onAction = (e: ActionEvent) => closeGame()
 								}
 							}
-
 						}
-
-						enemies(i).x = enemies(i).x + dx / dist * enemies(i).speed * delta
-						enemies(i).y = enemies(i).y + dy / dist * enemies(i).speed * delta
 
 						// Enemies & Bullets
 						for (bullet <- bullets) {
-							val dx = bullet.x - enemies(i).x
-							val dy = bullet.y - enemies(i).y
-
-							val dist = math.sqrt(dx*dx + dy*dy)
-
-							// If Enemy Dies
-							if (dist <= enemies(i).size + bullet.r) {
-								enemies(i).remove
-								if (!indexes.contains(i)) {
-									indexes += i
+							if (bullet.intersects(enemies(i).bounds)) {
+								enemies(i).inflictDamage(bullet.damage)
+								bullet.remove
+								
+								if (enemies(i).dead) {
+									enemies(i).remove
+									player.incrementKills
+									if (!indexes.contains(i)) indexes += i
 								}
 							}
 						}
+
+						// Enemies move
+						enemies(i).move
 					}
 
 					// Enemies Buffer
 					indexes = indexes.distinct
 					for (i <- 0 until indexes.length) {
 						enemies.remove(indexes(i))
-						player.incrementKills
 					}
 				}
 
-				// Bullet Buffer
+				// Bullets
 				if (!bullets.isEmpty) {
 					indexes = ArrayBuffer()
+
+					// Bullets move
 					for (i <- 0 until bullets.length) {
-						bullets(i).y = bullets(i).y - 4
+						bullets(i).move
 						if (bullets(i).y < (-bullets(i).r)) {
 							indexes += i
 						}
 					}
+
+					// Bullets Buffer
+					indexes = indexes.distinct
 					for (i <- 0 until indexes.length) {
 						bullets.remove(indexes(i))
 					}
 				}
 
-				// Player
+				// Player move
 				if (keys("Right")) player.move("Right", delta)
 				if (keys("Left")) player.move("Left", delta)
 
@@ -145,11 +144,11 @@ class Game (val playerName: String) extends Stage {
 				spawnDelay -= delta
 				seconds += delta
 				if (spawnDelay < 0) {
-					val e = new Seeker()
-					content(enemiesBufferCounter.value) = e.shape
-					enemiesBufferCounter.increment
+					val enemy = Enemy.spawn("Seeker")
+					content(enemiesCounter.value) = enemy.shape
+					enemiesCounter.increment
 
-					enemies +:= e
+					enemies +:= enemy
 					spawnDelay = 1.0
 				}
 

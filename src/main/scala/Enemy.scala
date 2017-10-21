@@ -1,17 +1,15 @@
-import scalafx.scene.shape.Circle
+import scalafx.scene.shape.{Shape, Circle}
+import scalafx.geometry.Bounds
 
-abstract class Enemy {
-	protected var health: Health
-	protected val _speed: Double
+abstract class Enemy extends Moveable with Damageable
 
-	def currentHealth = health.current
-	def maxHealth = health.max
-	def speed = _speed
-
-	def remove: Unit
-	def size: Double
-	def x: Double
-	def y: Double
-	def x_=(x: Double): Unit 
-	def y_=(y: Double): Unit 
+object Enemy {
+	def spawn(enemyType: String): Enemy = {
+		if (enemyType.equals("Seeker")) {
+			return (new Seeker())
+		} else {
+			println(s"Error: Enemy $enemyType cannot be not found, Seeker:Enemy spawned instead")
+			return (new Seeker())
+		}
+	}
 }

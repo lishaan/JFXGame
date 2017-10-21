@@ -1,34 +1,36 @@
-import scalafx.scene.shape.Circle
+import scalafx.scene.shape.{Shape, Circle}
+import scalafx.geometry.Bounds
 import scalafx.scene.paint.Color
 
-class Player (private val _name: String, color: Color) {
+class Player (private val _name: String, color: Color) extends Moveable {
 
     def this(name: String) = this(name, Color.Blue)
 
 	private var _kills: Int = 0
-	private var speed: Double = Const.playerSpeed
+	val _speed: Double = Const.playerSpeed
 
-	private var _shape = new Circle() {
-		centerY = Const.sceneHeight - 50
-		centerX = (Const.sceneWidth / 2).toInt
+	val _shape = new Circle() {
+		centerX = (Const.gameWidth / 2).toInt
+		centerY = Const.gameHeight - 50
 		radius = Const.playerSize
 		fill = color
 	}
 
-	def move(direction: String, delta: Double): Unit = {
-		if (direction.equals("Right") && (_shape.centerX.value + _shape.radius.value < Const.sceneWidth)) {
+	def size = _shape.radius.value
+	def x = _shape.centerX.value
+	def y = _shape.centerY.value
+	def x_=(x: Double) = { _shape.centerX = x }
+	def y_=(y: Double) = { _shape.centerY = y }
+
+	def move = println("Error: Parameters (direction: String, delta: Double) required")
+	def move(direction: String, delta: Double) = {
+		if (direction.equals("Right") && (_shape.centerX.value + _shape.radius.value < Const.gameWidth)) {
 			_shape.centerX = _shape.centerX.value + speed * delta
 		} else if (direction.equals("Left") && (_shape.centerX.value - _shape.radius.value > 0)) {
 			_shape.centerX = _shape.centerX.value - speed * delta
 		}
 	}
 
-	def pos = new Position(this.x, this.y)
-	def x = _shape.centerX.value
-	def y = _shape.centerY.value
-	def r = _shape.radius.value
-	def name = _name
-	def shape = _shape
 	def kills = _kills
-	def incrementKills = { _kills += 1 }
+	def incrementKills = { _kills = _kills + 1 }
 }
