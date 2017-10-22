@@ -14,36 +14,6 @@ case class BufferCounter (start: Int, end: Int) {
 
 case class Pair(head: Int, tail: Int)
 
-trait Moveable {
-	protected val _shape: Shape
-	protected val _speed: Double
-
-	def shape: Shape = _shape
-	def speed: Double = _speed
-	def pos: Position = new Position(this.x, this.y)
-
-	def bounds = _shape.boundsInLocal.value
-	def intersects(bounds: Bounds): Boolean = _shape.intersects(bounds)
-	def remove: Unit = { _shape.visible = false }
-
-	def size: Double
-	def x: Double
-	def y: Double
-	def x_=(x: Double)
-	def y_=(y: Double)
-
-	def move: Unit
-}
-
-trait Damageable {
-	protected var _health: Health
-
-	def dead: Boolean = (_health.current <= 0)
-	def alive: Boolean = !dead
-	def health: Double = _health.current
-	def inflictDamage(damage: Double): Unit = { _health.current = _health.current - damage }
-}
-
 object Const {
 	val gameWidth: Int = 400
 	val gameHeight: Int = 600
