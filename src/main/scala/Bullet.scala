@@ -1,13 +1,14 @@
+import scalafx.Includes._
 import scalafx.scene.shape.Circle
 import scalafx.scene.paint.Color
 
-class Bullet (pos: Position) extends Circle {
+class Bullet (playerPos: Position) extends Circle {
 	val damage: Double = 5
 	val speed: Double = 300
 	radius = 4
-	centerY = pos.y
-	centerX = pos.x
-	fill = Color.Red
+	centerY = playerPos.y - Const.playerSize
+	centerX = playerPos.x
+	fill = Const.color("Bullet")
 
 	def remove = { 
 		this.centerX = -800

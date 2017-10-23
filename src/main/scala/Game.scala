@@ -25,11 +25,16 @@ class Game (val playerName: String) extends Stage {
 	resizable = false
 
 	scene = new Scene(Const.gameWidth, Const.gameHeight) {
+		fill = Const.color("Background")
+
+		var healthTexts: ArrayBuffer[HealthText] = ArrayBuffer()
 		var enemies: ArrayBuffer[Enemy] = ArrayBuffer()
 		var bullets: ArrayBuffer[Bullet] = ArrayBuffer()
 		
 		val player = new Player(playerName)
-		var timerText = new Text(10, 20, "0.0")
+		var timerText = new Text(10, 20, "0.0") {
+			fill = Const.color("TimerText")
+		}
 
 		content = List(player.shape, timerText)
 
@@ -40,23 +45,32 @@ class Game (val playerName: String) extends Stage {
 		val enemiesCounter = BufferCounter(Const.memory("Enemies").head, Const.memory("Enemies").tail)
 		for (i <- Const.memory("Enemies").head to Const.memory("Enemies").tail) { content += new Circle() }
 
+		val healthTextCounter = BufferCounter(Const.memory("HealthText").head, Const.memory("HealthText").tail)
+		for (i <- Const.memory("HealthText").head to Const.memory("HealthText").tail) { content += new Text() }
+
 		var keys = Map(
 			"Right" -> false,
 			"Left"  -> false
 		)
 
 		onKeyPressed = (e: KeyEvent) => {
-			if (e.code == KeyCode.Right) keys("Right") = true
-			if (e.code == KeyCode.Left) keys("Left") = true
+			e.code match {
+				case KeyCode.Right => keys("Right") = true
+				case KeyCode.Left => keys("Left") = true
+				case _ => 
+			}
 		}
 
 		onKeyReleased = (e: KeyEvent) => {
-			if (e.code == KeyCode.Right) keys("Right") = false
-			if (e.code == KeyCode.Left) keys("Left") = false
-			if (e.code == KeyCode.Space) {
-				bullets +:= new Bullet(player.pos)
-				content(bulletsCounter.value) = bullets.head
-				bulletsCounter.increment
+			e.code match {
+				case KeyCode.Right => keys("Right") = false
+				case KeyCode.Left => keys("Left") = false
+				case KeyCode.Space => {
+					bullets +:= new Bullet(player.pos)
+					content(bulletsCounter.value) = bullets.head
+					bulletsCounter.increment
+				}
+				case _ =>
 			}
 		}
 
@@ -93,27 +107,30 @@ class Game (val playerName: String) extends Stage {
 						}
 
 						// Enemies & Bullets
-						for (bullet <- bullets) {
+						bullets.foreach(bullet => {
 							if (bullet.intersects(enemies(i).bounds)) {
 								enemies(i).inflictDamage(bullet.damage)
 								bullet.remove
 								
 								if (enemies(i).dead) {
 									enemies(i).remove
+									healthTexts(i).remove
 									player.incrementKills
 									if (!indexes.contains(i)) indexes += i
 								}
 							}
-						}
+						})
 
 						// Enemies move
 						enemies(i).move
+						healthTexts(i).update(enemies(i).healthObject, enemies(i).pos)
 					}
 
 					// Enemies Buffer
 					indexes = indexes.distinct
 					for (i <- 0 until indexes.length) {
 						enemies.remove(indexes(i))
+						healthTexts.remove(indexes(i))
 					}
 				}
 
@@ -147,8 +164,13 @@ class Game (val playerName: String) extends Stage {
 					val enemy = Enemy.spawn("Seeker")
 					content(enemiesCounter.value) = enemy.shape
 					enemiesCounter.increment
-
 					enemies +:= enemy
+
+					val healthText = Enemy.drawHealth(enemy.healthObject, enemy.pos)
+					content(healthTextCounter.value) = healthText
+					healthTextCounter.increment
+					healthTexts +:= healthText
+
 					spawnDelay = 1.0
 				}
 
@@ -156,7 +178,7 @@ class Game (val playerName: String) extends Stage {
 				// println(content.length)
 				// var count = 0
 				// for (i <- content) {
-				// 	println(s"$count ${i.toString}")
+				// 	println(s"DEBUG: $count ${i.toString}")
 				// 	count += 1
 				// }
 				// println()

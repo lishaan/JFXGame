@@ -1,5 +1,25 @@
+import scalafx.Includes._
+import scalafx.scene.text.{Text, Font}
 import scalafx.scene.shape.{Shape, Circle}
 import scalafx.geometry.Bounds
+
+class HealthText (health: Health, spawnPos: Position) extends Text {
+	x = spawnPos.x - 10
+	y = spawnPos.y + 30
+	text = (((health.current / health.max) * 100.00).toInt).toString
+	fill = Const.color("HealthText")
+	// style = "-fx-font: normal 7pt sans-serif"
+
+	def remove: Unit = { 
+		this.x = -800
+		this.visible = false 
+	}
+	def update(health: Health, pos: Position) {
+		this.x = pos.x - 10
+		this.y = pos.y + 30
+		this.text = (((health.current / health.max) * 100.00).toInt).toString
+	}
+}
 
 abstract class Enemy extends Moveable with Damageable
 
@@ -12,14 +32,23 @@ object Enemy {
 			return (new Seeker())
 		}
 	}
+
+	def drawHealth(health: Health, pos: Position): HealthText = {
+		new HealthText(health, pos)
+	}
 }
 
 class Seeker extends Enemy {
-	val _shape: Circle = Circle(math.random * 400, 0, 10)
+	val _shape: Circle = new Circle() {
+		centerX = math.random * 400
+		centerY = 0
+		radius = 10
+		fill = Const.color("Seeker")
+	}
 
 	val _speed: Double = 80
 
-	var _health = Health(10, 10)
+	val _health = Health(10)
 	
 	def size = _shape.radius.value
 	def x = _shape.centerX.value
@@ -61,10 +90,11 @@ trait Moveable {
 }
 
 trait Damageable {
-	protected var _health: Health
+	protected val _health: Health
 
 	def dead: Boolean = (_health.current <= 0)
 	def alive: Boolean = !dead
 	def health: Double = _health.current
+	def healthObject: Health = _health
 	def inflictDamage(damage: Double): Unit = { _health.current = _health.current - damage }
 }
