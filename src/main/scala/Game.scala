@@ -1,33 +1,58 @@
+import scala.io.Source 
+import scala.collection.mutable.{ArrayBuffer, Map}
 import scalafx.Includes._
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
-import scalafx.geometry.Bounds
 import scalafx.stage.Stage
-import scalafx.scene.control.{Button, ListView}
-import scalafx.scene.layout.BorderPane
-import scalafx.scene.{Node, Scene}
+import scalafx.scene.control.Button
+import scalafx.scene.Scene
 import scalafx.event.ActionEvent
 import scalafx.scene.text.Text
-import scalafx.scene.shape.Circle
 import scalafx.scene.input.{KeyEvent, KeyCode}
 import scalafx.event.ActionEvent
 import scalafx.animation.AnimationTimer
 import scalafx.scene.paint.Color
-import scalafx.collections.ObservableBuffer
-import scala.collection.mutable.{ArrayBuffer, Map}
+import scalafx.scene.canvas.{Canvas, GraphicsContext}
 
 class Game (val playerName: String) extends Stage {
 
 	def this() = this("Player")
 	def closeGame() = this.close
 
+	def intersected(moverA: Moveable, moverB: Moveable): Boolean = {
+		val dx = moverB.x - moverA.x
+		val dy = moverB.y - moverA.y
+		val dist = math.sqrt(dx*dx + dy*dy)
+
+		return dist < math.abs(moverA.size + moverB.size)
+	}
+
+	def getHighscores(file: String): ArrayBuffer[Score] = {
+		var scores: ArrayBuffer[Score] = ArrayBuffer()
+		try {
+			val fScanner = new java.util.Scanner(new java.io.File(file))
+			while (fScanner.hasNextLine) {
+				var name: String = ""
+				while (!fScanner.hasNextDouble) {
+					name += fScanner.next
+				}
+				var score: Double = fScanner.nextDouble
+
+				scores += new Score(name, score)
+			}
+			fScanner.close
+		} catch {
+			case e: Exception => 
+			case _: Throwable =>
+		}
+
+		return scores
+	}
+
 	title = "JFXGame - Play"
 	resizable = false
 
 	scene = new Scene(Const.gameWidth, Const.gameHeight) {
-		fill = Const.color("Background")
-
-		var healthTexts: ArrayBuffer[HealthText] = ArrayBuffer()
 		var enemies: ArrayBuffer[Enemy] = ArrayBuffer()
 		var bullets: ArrayBuffer[Bullet] = ArrayBuffer()
 		
@@ -36,22 +61,111 @@ class Game (val playerName: String) extends Stage {
 			fill = Const.color("TimerText")
 		}
 
-		content = List(player.shape, timerText)
-
-		// Memory Allocations for Stage.content
-		val bulletsCounter = BufferCounter(Const.memory("Bullets").head, Const.memory("Bullets").tail)
-		for (i <- Const.memory("Bullets").head to Const.memory("Bullets").tail) { content += new Circle() }
-		
-		val enemiesCounter = BufferCounter(Const.memory("Enemies").head, Const.memory("Enemies").tail)
-		for (i <- Const.memory("Enemies").head to Const.memory("Enemies").tail) { content += new Circle() }
-
-		val healthTextCounter = BufferCounter(Const.memory("HealthText").head, Const.memory("HealthText").tail)
-		for (i <- Const.memory("HealthText").head to Const.memory("HealthText").tail) { content += new Text() }
-
-		var keys = Map(
+		var keys = Map (
 			"Right" -> false,
 			"Left"  -> false
 		)
+
+		var lastTime: Long = -3
+		var seconds: Double = 0.0
+
+		// Canvas
+		val canvas: Canvas = new Canvas(Const.gameWidth, Const.gameHeight);
+		val drawer: GraphicsContext = canvas.graphicsContext2D
+
+		val timer: AnimationTimer = AnimationTimer(t => {
+			if(lastTime > 0) {
+				val delta = (t-lastTime)/1e9
+				
+				Global.playerPos = player.position
+				Global.delta = delta
+
+				var indexes: ArrayBuffer[Int] = ArrayBuffer()
+
+				// Enemies
+				if (!enemies.isEmpty) {
+					indexes = ArrayBuffer()
+					for (i <- 0 until enemies.length) {
+						// Player death
+						if (intersected(enemies(i), player)) {
+							timer.stop
+							
+							// TODO: Write ${player.kills} and $seconds to highscore
+							// player.kills
+							// seconds
+							// val scores = getHighscores(Const.highscoresFile)
+							// scores.foreach(score => println(s"Name: ${score.name} Score: ${score.score}"))
+
+							root = new Button("Go Back To Main Menu") {
+								onAction = (e: ActionEvent) => closeGame()
+							}
+						}
+
+						// Enemies & Bullets
+						bullets.foreach(bullet => {
+							if (intersected(bullet, enemies(i))) {
+								enemies(i).inflictDamage(bullet.damage)
+								bullet.remove
+								
+								if (enemies(i).dead) {
+									enemies(i).remove
+									player.incrementKills
+									if (!indexes.contains(i)) indexes += i
+								}
+							}
+						})
+
+						// Enemies move
+						enemies(i).move
+					}
+				}
+
+				// Enemies Buffer
+				indexes = indexes.distinct
+				indexes.foreach(index => enemies.remove(index))
+
+				// Bullets
+				if (!bullets.isEmpty) {
+					indexes = ArrayBuffer()
+
+					// Bullets move
+					for (i <- 0 until bullets.length) {
+						bullets(i).move
+						if (bullets(i).y < (-bullets(i).size)) {
+							indexes += i
+						}
+					}
+
+					// Bullets Buffer
+					indexes = indexes.distinct
+					indexes.foreach(index => bullets.remove(index))
+				}
+
+				// Player move
+				if (keys("Right")) player.move("Right")
+				if (keys("Left")) player.move("Left")
+
+				// Enemies Spawn
+				Global.spawnDelays.foreach(delay => {
+					delay.update
+					if (delay.stopped) {
+						enemies +:= Enemy.spawn(delay.enemyName)
+						delay.reset
+					}
+				})
+
+				// Drawings
+				drawer.fill = Const.color("Background")
+				drawer.fillRect(0, 0, Const.gameWidth, Const.gameHeight)
+				bullets.foreach(b => b.draw(drawer))
+				enemies.foreach(e => e.draw(drawer))
+				player.draw(drawer)
+
+				seconds += delta
+				timerText.text = "%.1f".format(seconds)
+			}
+			lastTime = t
+		})
 
 		onKeyPressed = (e: KeyEvent) => {
 			e.code match {
@@ -65,127 +179,14 @@ class Game (val playerName: String) extends Stage {
 			e.code match {
 				case KeyCode.Right => keys("Right") = false
 				case KeyCode.Left => keys("Left") = false
-				case KeyCode.Space => {
-					bullets +:= new Bullet(player.pos)
-					content(bulletsCounter.value) = bullets.head
-					bulletsCounter.increment
-				}
+				case KeyCode.Space => bullets +:= new Bullet(player.position)
+				case KeyCode.Z => bullets +:= new Bullet(player.position)
 				case _ =>
 			}
 		}
 
-		var lastTime = -3L
-		var spawnDelay = 1.0
-		var seconds = 0.0
+		content = List(canvas, timerText)
 
-		val timer: AnimationTimer = AnimationTimer(t => {
-			if(lastTime > 0) {
-				val delta = (t-lastTime)/1e9
-				
-				Global.playerPos = player.pos
-				Global.delta = delta
-
-				var indexes: ArrayBuffer[Int] = ArrayBuffer()
-
-				// Enemies
-				if (!enemies.isEmpty) {
-					indexes = ArrayBuffer()
-					for (i <- 0 until enemies.length) {
-						// Player death
-						if (enemies(i).intersects(player.bounds)) {
-							timer.stop
-							
-							// TODO: Write ${player.kills} and $seconds to highscore
-							// player.kills
-							// seconds
-
-							root = new BorderPane {
-								center = new Button("Go Back To Main Menu") {
-									onAction = (e: ActionEvent) => closeGame()
-								}
-							}
-						}
-
-						// Enemies & Bullets
-						bullets.foreach(bullet => {
-							if (bullet.intersects(enemies(i).bounds)) {
-								enemies(i).inflictDamage(bullet.damage)
-								bullet.remove
-								
-								if (enemies(i).dead) {
-									enemies(i).remove
-									healthTexts(i).remove
-									player.incrementKills
-									if (!indexes.contains(i)) indexes += i
-								}
-							}
-						})
-
-						// Enemies move
-						enemies(i).move
-						healthTexts(i).update(enemies(i).healthObject, enemies(i).pos)
-					}
-
-					// Enemies Buffer
-					indexes = indexes.distinct
-					for (i <- 0 until indexes.length) {
-						enemies.remove(indexes(i))
-						healthTexts.remove(indexes(i))
-					}
-				}
-
-				// Bullets
-				if (!bullets.isEmpty) {
-					indexes = ArrayBuffer()
-
-					// Bullets move
-					for (i <- 0 until bullets.length) {
-						bullets(i).move
-						if (bullets(i).y < (-bullets(i).r)) {
-							indexes += i
-						}
-					}
-
-					// Bullets Buffer
-					indexes = indexes.distinct
-					for (i <- 0 until indexes.length) {
-						bullets.remove(indexes(i))
-					}
-				}
-
-				// Player move
-				if (keys("Right")) player.move("Right", delta)
-				if (keys("Left")) player.move("Left", delta)
-
-				// Enemies Spawn
-				spawnDelay -= delta
-				seconds += delta
-				if (spawnDelay < 0) {
-					val enemy = Enemy.spawn("Seeker")
-					content(enemiesCounter.value) = enemy.shape
-					enemiesCounter.increment
-					enemies +:= enemy
-
-					val healthText = Enemy.drawHealth(enemy.healthObject, enemy.pos)
-					content(healthTextCounter.value) = healthText
-					healthTextCounter.increment
-					healthTexts +:= healthText
-
-					spawnDelay = 1.0
-				}
-
-				// DEBUG
-				// println(content.length)
-				// var count = 0
-				// for (i <- content) {
-				// 	println(s"DEBUG: $count ${i.toString}")
-				// 	count += 1
-				// }
-				// println()
-				timerText.text = "%.1f".format(seconds)
-			}
-			lastTime = t
-		})
 		timer.start
 	}
 }

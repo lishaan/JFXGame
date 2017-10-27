@@ -1,44 +1,32 @@
 import scalafx.Includes._
-import scalafx.scene.shape.{Circle, Ellipse}
-import scalafx.geometry.Bounds
 import scalafx.scene.paint.Color
+import scalafx.scene.canvas.GraphicsContext
 
-class Player (private val _name: String, color: Color) extends Moveable {
+class Player (name: String) extends Drawable with Moveable {
 
-	def this() = this("Player", Const.color("Player"))
-    def this(name: String) = this(name, Const.color("Player"))
+    def this() = this("Player")
 
-	private var _kills: Int = 0
-	val _speed: Double = Const.playerSpeed
+    val _name: String = name
+	var _kills: Int = 0
 
-	// val _shape = new Polygon() {
-	// 	x = (Const.gameWidth / 2).toInt
-	// 	y = Const.gameHeight - 50
-	// 	radius = Const.playerSize
-	// 	fill = color
-	// }
+	val _position: Position = new Position(Const.gameWidth/2, Const.gameHeight-50)
+	val _speed: Double = Const.speed("Player")
+	val _size: Double = Const.size("Player")
+	val _color: Color = Const.color("Player")
 
-	val _shape = new Ellipse() {
-		centerX = (Const.gameWidth / 2).toInt
-		centerY = Const.gameHeight - 50
-		radiusX = Const.playerSize / 2
-		radiusY = Const.playerSize
-		fill = color
+	def move = println("Error: Parameter (direction: String) required")
+	def move(direction: String): Unit = {
+		if (direction.equals("Right") && (position.x+size < Const.gameWidth)) {
+			position.moveRight(speed)
+		} else if (direction.equals("Left") && (position.x-size > 0)) {
+			position.moveLeft(speed)
+		}
 	}
 
-	def size = _shape.radiusY.value
-	def x = _shape.centerX.value
-	def y = _shape.centerY.value
-	def x_=(x: Double) = { _shape.centerX = x }
-	def y_=(y: Double) = { _shape.centerY = y }
-
-	def move = println("Error: Parameters (direction: String, delta: Double) required")
-	def move(direction: String, delta: Double) = {
-		if (direction.equals("Right") && (_shape.centerX.value + _shape.radiusX.value < Const.gameWidth)) {
-			_shape.centerX = _shape.centerX.value + speed * delta
-		} else if (direction.equals("Left") && (_shape.centerX.value - _shape.radiusX.value > 0)) {
-			_shape.centerX = _shape.centerX.value - speed * delta
-		}
+	def draw(drawer: GraphicsContext): Unit = {
+		// Draws at center
+		drawer.fill = color
+		drawer.fillOval(position.x-size, position.y-size, size*2, size*2)
 	}
 
 	def kills = _kills

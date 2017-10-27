@@ -1,25 +1,22 @@
 import scalafx.Includes._
-import scalafx.scene.shape.Circle
 import scalafx.scene.paint.Color
+import scalafx.scene.canvas.GraphicsContext
 
-class Bullet (playerPos: Position) extends Circle {
-	val damage: Double = 5
-	val speed: Double = 300
-	radius = 4
-	centerY = playerPos.y - Const.playerSize
-	centerX = playerPos.x
-	fill = Const.color("Bullet")
+class Bullet (playerPos: Position) extends Drawable with Moveable {
+	val _damage: Double = 5
 
-	def remove = { 
-		this.centerX = -800
-		this.visible = false 
+	val _position: Position = new Position(playerPos.x, playerPos.y - (Const.size("Player")/2))
+	val _speed: Double = Const.speed("Bullet")
+	val _size: Double  = Const.size("Bullet")
+	val _color: Color = Const.color("Bullet")
+
+	def move = _position.moveUp(speed)
+
+	def draw(drawer: GraphicsContext): Unit = {
+		// Draws at center
+		drawer.fill = color
+		drawer.fillOval(position.x-size, position.y-size, size*2, size*2)
 	}
 
-	def move = { centerY = (centerY.value - speed * Global.delta) }
-
-	def r = radius.value
-	def x = centerX.value
-	def y = centerY.value
-	def x_=(x: Double) = { centerX = x }
-	def y_=(y: Double) = { centerY = y }
+	def damage = _damage
 }
