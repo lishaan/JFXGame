@@ -27,28 +27,6 @@ class Game (val playerName: String) extends Stage {
 		return dist < math.abs(moverA.size + moverB.size)
 	}
 
-	def getHighscores(file: String): ArrayBuffer[Score] = {
-		var scores: ArrayBuffer[Score] = ArrayBuffer()
-		try {
-			val fScanner = new java.util.Scanner(new java.io.File(file))
-			while (fScanner.hasNextLine) {
-				var name: String = ""
-				while (!fScanner.hasNextDouble) {
-					name += fScanner.next
-				}
-				var score: Double = fScanner.nextDouble
-
-				scores += new Score(name, score)
-			}
-			fScanner.close
-		} catch {
-			case e: Exception => 
-			case _: Throwable =>
-		}
-
-		return scores
-	}
-
 	title = "JFXGame - Play"
 	resizable = false
 
@@ -62,7 +40,9 @@ class Game (val playerName: String) extends Stage {
 		}
 
 		var keys = Map (
+			"Up"    -> false,
 			"Right" -> false,
+			"Down"  -> false,
 			"Left"  -> false
 		)
 
@@ -90,11 +70,10 @@ class Game (val playerName: String) extends Stage {
 						if (intersected(enemies(i), player)) {
 							timer.stop
 							
-							// TODO: Write ${player.kills} and $seconds to highscore
-							// player.kills
-							// seconds
-							// val scores = getHighscores(Const.highscoresFile)
-							// scores.foreach(score => println(s"Name: ${score.name} Score: ${score.score}"))
+							// Highscores
+							App.appendScore(Const.highscoresFile, new Score(player.getName, seconds))
+							val scores = App.getHighscores(Const.highscoresFile)
+							scores.foreach(score => println(s"Name: ${score.name} Score: ${score.score}"))
 
 							root = new Button("Go Back To Main Menu") {
 								onAction = (e: ActionEvent) => closeGame()
@@ -108,7 +87,7 @@ class Game (val playerName: String) extends Stage {
 								bullet.remove
 								
 								if (enemies(i).dead) {
-									enemies(i).remove
+									// enemies(i).remove
 									player.incrementKills
 									if (!indexes.contains(i)) indexes += i
 								}
@@ -121,7 +100,6 @@ class Game (val playerName: String) extends Stage {
 				}
 
 				// Enemies Buffer
-				indexes = indexes.distinct
 				indexes.foreach(index => enemies.remove(index))
 
 				// Bullets
@@ -132,18 +110,30 @@ class Game (val playerName: String) extends Stage {
 					for (i <- 0 until bullets.length) {
 						bullets(i).move
 						if (bullets(i).y < (-bullets(i).size)) {
-							indexes += i
+							if (!indexes.contains(i)) indexes += i
 						}
 					}
 
 					// Bullets Buffer
-					indexes = indexes.distinct
 					indexes.foreach(index => bullets.remove(index))
 				}
 
 				// Player move
+				if (keys("Up"   )) player.move("Up"   )
 				if (keys("Right")) player.move("Right")
-				if (keys("Left")) player.move("Left")
+				if (keys("Down" )) player.move("Down" )
+				if (keys("Left" )) player.move("Left" )
+
+				// Game speed configuration
+				if (seconds >= 20) Const.gameSpeed = 1.1
+				if (seconds >= 40) Const.gameSpeed = 1.2
+				if (seconds >= 80) Const.gameSpeed = 1.3
+				if (seconds >= 100) Const.gameSpeed = 1.4
+				if (seconds >= 120) Const.gameSpeed = 1.5
+				if (seconds >= 140) Const.gameSpeed = 1.6
+				Const.updateSpeeds
+
+
 
 				// Enemies Spawn
 				Global.spawnDelays.foreach(delay => {
@@ -157,6 +147,9 @@ class Game (val playerName: String) extends Stage {
 				// Drawings
 				drawer.fill = Const.color("Background")
 				drawer.fillRect(0, 0, Const.gameWidth, Const.gameHeight)
+				drawer.fill = Const.color("PlayArea")
+				drawer.fillRect(0, Const.playAreaHeight, Const.gameWidth, Const.playAreaHeight)
+
 				bullets.foreach(b => b.draw(drawer))
 				enemies.foreach(e => e.draw(drawer))
 				player.draw(drawer)
@@ -169,7 +162,9 @@ class Game (val playerName: String) extends Stage {
 
 		onKeyPressed = (e: KeyEvent) => {
 			e.code match {
+				case KeyCode.Up => keys("Up") = true
 				case KeyCode.Right => keys("Right") = true
+				case KeyCode.Down => keys("Down") = true
 				case KeyCode.Left => keys("Left") = true
 				case _ => 
 			}
@@ -177,8 +172,11 @@ class Game (val playerName: String) extends Stage {
 
 		onKeyReleased = (e: KeyEvent) => {
 			e.code match {
+				case KeyCode.Up => keys("Up") = false
 				case KeyCode.Right => keys("Right") = false
+				case KeyCode.Down => keys("Down") = false
 				case KeyCode.Left => keys("Left") = false
+
 				case KeyCode.Space => bullets +:= new Bullet(player.position)
 				case KeyCode.Z => bullets +:= new Bullet(player.position)
 				case _ =>
