@@ -43,7 +43,8 @@ class Game (val playerName: String) extends Stage {
 			"Up"    -> false,
 			"Right" -> false,
 			"Down"  -> false,
-			"Left"  -> false
+			"Left"  -> false,
+			"Escape" -> false
 		)
 
 		var lastTime: Long = -3
@@ -179,6 +180,7 @@ class Game (val playerName: String) extends Stage {
 
 				case KeyCode.Space => bullets +:= new Bullet(player.position)
 				case KeyCode.Z => bullets +:= new Bullet(player.position)
+				case KeyCode.Escape => sys.exit(0)	
 				case _ =>
 			}
 		}
