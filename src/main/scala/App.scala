@@ -51,10 +51,10 @@ object App extends JFXApp {
 			
 			val helpAbout = new MenuItem("About"){
 				onAction = (e: ActionEvent) => {
-					// val openAbout: Stage = new AboutUs("Hans")
-					// stage.hide()
-					// openAbout.showAndWait()
-					// stage.show()
+					val openAbout: Stage = new AboutUs("Hans")
+					stage.hide()
+					openAbout.showAndWait()
+					stage.show()
 				}
 				accelerator = new KeyCodeCombination(KeyCode.A, KeyCombination.ControlDown)
 			}
