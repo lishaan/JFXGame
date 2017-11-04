@@ -1,20 +1,13 @@
 import scalafx.Includes._
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
-import scalafx.geometry.Bounds
 import scalafx.stage.Stage
 import scalafx.scene.control.{Button, ListView}
-import scalafx.scene.layout.BorderPane
 import scalafx.scene.{Node, Scene}
-import scalafx.event.ActionEvent
 import scalafx.scene.text.Text
-import scalafx.scene.shape.Circle
 import scalafx.scene.input.{KeyEvent, KeyCode}
 import scalafx.event.ActionEvent
-import scalafx.animation.AnimationTimer
-import scalafx.scene.paint.Color
-import scalafx.collections.ObservableBuffer
-import scala.collection.mutable.{ArrayBuffer, Map}
+// import scala.collection.mutable.{ArrayBuffer, Map}
 
 class AboutUs (val playerName: String) extends Stage {
 
