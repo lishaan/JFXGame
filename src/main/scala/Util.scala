@@ -3,6 +3,8 @@ import scala.collection.mutable.{Map => MMap, ArrayBuffer}
 import scala.collection.immutable.Map
 import scalafx.scene.paint.Color
 
+case class Score (name: String, score: Double)
+
 case class Health (max: Double) { 
 	var current: Double = max 
 	def percentage: Double = current / max
@@ -31,7 +33,58 @@ case class Spawner (val enemyName: String, val delayHead: Double, val delayTail:
 	def update: Unit = { counter -= Global.delta }
 }
 
-case class Score (name: String, score: Double)
+object Util {
+	def getHighscores(file: String): List[Score] = {
+		var scores: ArrayBuffer[Score] = ArrayBuffer()
+		try {
+			val fScanner = new java.util.Scanner(new java.io.File(file))
+			val firstLine = fScanner.nextLine
+			while (fScanner.hasNextLine) {
+				var name: String = ""
+				var score: Double = 0.0
+
+				while (!fScanner.hasNextDouble) {
+					name += fScanner.next
+					if (!fScanner.hasNextDouble) name += " "
+				}
+				score = fScanner.nextDouble
+
+				scores += new Score(name, score)
+			}
+			fScanner.close
+		} catch {
+			case _: Throwable => println("Error: Highscore file not found (READ)")
+		}
+
+		val unsorted = scores.toList
+		val sorted = unsorted.sortBy(-_.score).take(10)
+
+		return sorted
+	}
+
+	def appendScore(file: String, score: Score): Boolean = {
+		try {
+			val sorted: List[Score] = getHighscores(file)
+			val lowest: Score = sorted(sorted.length-1)
+
+			val shouldAppend: Boolean = (sorted.length >= 10 && lowest.score > score.score)
+
+			if (shouldAppend) {
+				return false
+			} else {			
+				val printWriter = new java.io.PrintWriter(new java.io.FileOutputStream(new java.io.File(file), true))
+				printWriter.write(s"\n${score.name} ${"%.2f".format(score.score)}")
+				printWriter.close
+				return true
+			}
+
+		} catch {
+			case _: Throwable => println("Error: Highscore file not found (WRITE)")
+		}
+
+		return false
+	}
+}
 
 object Const {
 	val gameScale: Double = 1.2
@@ -61,6 +114,7 @@ object Const {
 		"Background" -> Color.web("0c0910"),
 		"PlayArea"   -> Color.web("302D35"),
 		"TimerText"  -> Color.web("cdd1c4"),
+		"PausedText" -> Color.web("74D3AE"),
 		"Player"     -> Color.web("6B2737"),
 		"Bullet"     -> Color.web("FE5F55"),
 		"Seeker"     -> Color.web("49306B"),
