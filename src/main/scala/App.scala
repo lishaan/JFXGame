@@ -73,7 +73,6 @@ object App extends JFXApp {
 
 			val helpMenu = new Menu("Help")
 			
-			case class Result(username: String, password: String)
 			val helpAbout = new MenuItem("About"){
 				onAction = (e: ActionEvent) => {
 					var alert = new Alert(AlertType.Information) {
