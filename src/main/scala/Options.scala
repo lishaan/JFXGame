@@ -63,12 +63,12 @@ class Options(var playerName: String) extends Stage {
 		speedSlider.setMajorTickUnit(0.25f)
 		speedSlider.setBlockIncrement(0.1f)
 
-		val scaleSlider_label = new Label("Window Height"){
+		val scaleSlider_label = new Label("Window Width"){
 			layoutX = 250
 			layoutY = 165
 		}
 
-		val scaleSlider = new Slider(400, 800, Const.gameHeight){
+		val scaleSlider = new Slider(400, 800, Const.gameWidth){
 			layoutX = 370
 			layoutY = 165
 		}
@@ -96,7 +96,7 @@ class Options(var playerName: String) extends Stage {
 				playerName = playerName_textField.getText()
 				println(playerName)
 				Const.gameSpeed = speedSlider.getValue()
-				Const.gameHeight = scaleSlider.getValue()
+				Const.gameWidth = scaleSlider.getValue()
 				val game: Stage = new Game(playerName)
 				game.showAndWait()
 			}
