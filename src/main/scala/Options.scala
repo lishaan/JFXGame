@@ -63,6 +63,21 @@ class Options(var playerName: String) extends Stage {
 		speedSlider.setMajorTickUnit(0.25f)
 		speedSlider.setBlockIncrement(0.1f)
 
+		val scaleSlider_label = new Label("Window Height"){
+			layoutX = 250
+			layoutY = 165
+		}
+
+		val scaleSlider = new Slider(400, 800, Const.gameHeight){
+			layoutX = 370
+			layoutY = 165
+		}
+
+		// scaleSlider.setShowTickMarks(true)
+ 		scaleSlider.setShowTickLabels(true)
+		scaleSlider.setMajorTickUnit(0.25f)
+		// scaleSlider.setBlockIncrement(0.1f)
+
 		val playButton = new Button("Play"){
 			layoutX = 240
 			layoutY = 320
@@ -81,6 +96,7 @@ class Options(var playerName: String) extends Stage {
 				playerName = playerName_textField.getText()
 				println(playerName)
 				Const.gameSpeed = speedSlider.getValue()
+				Const.gameHeight = scaleSlider.getValue()
 				val game: Stage = new Game(playerName)
 				game.showAndWait()
 			}
@@ -101,6 +117,6 @@ class Options(var playerName: String) extends Stage {
 
 			onAction = (e: ActionEvent) => closeGame
 		}
-		content = List(playerInfo, playerName_label, playerName_textField, speedSlider, gameSpeed_label, gameSetupInfo, playButton, returnToMenu)
+		content = List(playerInfo, playerName_label, playerName_textField,scaleSlider_label, speedSlider, scaleSlider, gameSpeed_label, gameSetupInfo, playButton, returnToMenu)
 	}
 }
