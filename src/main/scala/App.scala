@@ -73,7 +73,6 @@ object App extends JFXApp {
 
 			val helpMenu = new Menu("Help")
 			
-			case class Result(username: String, password: String)
 			val helpAbout = new MenuItem("About"){
 				onAction = (e: ActionEvent) => {
 					var alert = new Alert(AlertType.Information) {
@@ -82,7 +81,7 @@ object App extends JFXApp {
 						headerText = "About Us"
 						contentText = "About Game: Simple game that permits the user to kill enemies. The Spacebar is used to release bullets and the Right/Left key are used to navigate to right and left respectively. Instructions: \n\n+ Right/Left Key: To move the player to right and left respectively while hitting the bullets to kill the enemies\n+ Space bar: Tap to release bullets by bearing in mind the time taken for the bullet to reach the enemies.\n"
 					}
-					alert.getDialogPane().setPrefSize(400, 320);
+					alert.getDialogPane().setPrefSize(480, 320);
 					val results = alert.showAndWait()
 				}
 				accelerator = new KeyCodeCombination(KeyCode.A, KeyCombination.ControlDown)
