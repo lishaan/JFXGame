@@ -1,6 +1,7 @@
 import scalafx.Includes._
 import scalafx.scene.paint.Color
 import scalafx.scene.canvas.GraphicsContext
+import scala.collection.mutable.ArrayBuffer
 
 abstract class Enemy extends Drawable with Moveable with Damageable
 object Enemy {
@@ -9,6 +10,8 @@ object Enemy {
 			return new Seeker
 		} else if (enemyType.equals("Bouncer")) {
 			return new Bouncer
+		} else if (enemyType.equals("Shooter")) {
+			return new Shooter
 		} else {
 			println(s"Warning: Enemy $enemyType cannot be not found, Seeker spawned instead")
 			return new Seeker
@@ -56,7 +59,7 @@ class Seeker extends Enemy {
 }
 
 class Bouncer extends Enemy {
-	val _position: Position = new Position(math.random*Const.gameWidth, 0)
+	val _position: Position = new Position(math.random*Const.gameWidth, size + 50)
 	var _speed: Double = Const.speed("Bouncer")
 	val _size: Double = Const.size("Bouncer")
 	val _color: Color = Const.color("Bouncer")
@@ -71,11 +74,11 @@ class Bouncer extends Enemy {
 		position.x = position.x + velocity.x * Global.delta
 		position.y = position.y + velocity.y * Global.delta
 
-		if (position.x < 0 || position.x > Const.gameWidth) {
+		if (position.x < 0+size || position.x > Const.gameWidth-size) {
 			velocity.x = -velocity.x
 		}
 
-		if (position.y < 0 || position.y > Const.gameHeight) {
+		if (position.y < 0+size || position.y > Const.gameHeight-size) {
 			velocity.y = -velocity.y
 		}
 	}
@@ -99,49 +102,78 @@ class Bouncer extends Enemy {
 	}
 }
 
-// class Multiplier extends Enemy {
-// 	val _position: Position = new Position(math.random * 400, math.random * 200)
-// 	var _speed: Double = Const.speed("Bouncer")
-// 	val _size: Double = Const.size("Bouncer")
-// 	val _color: Color = Const.color("Bouncer")
-// 	val _health: Health = Health(Const.health("Bouncer"))
+class Shooter extends Enemy {
+	val _position: Position = new Position(math.random*Const.gameWidth, math.random*Const.playAreaHeight)
+	var _speed: Double = Const.speed("Shooter")
+	val _size: Double = Const.size("Shooter")
+	val _color: Color = Const.color("Shooter")
+	val _health: Health = Health(Const.health("Shooter"))
 
-// 	val _velocity: Velocity = new Velocity(speed)
+	private var _bullets: ArrayBuffer[ShooterBullet] = ArrayBuffer()
+	private var dir: Int = 0
 
-// 	def velocity: Velocity = _velocity
+	def bullets: ArrayBuffer[ShooterBullet] = _bullets
 
-// 	def move = {
-// 		speed = Const.size("Bouncer")
-// 		position.x = position.x + velocity.x * Global.delta
-// 		position.y = position.y + velocity.y * Global.delta
+	def move = {
+		speed = Const.size("Shooter")
 
-// 		if (position.x < 0 || position.x > Const.gameWidth) {
-// 			velocity.x = -velocity.x
-// 		}
+		dir match {
+			case 0 => position.x = position.x + speed * Global.delta
+			case 1 => position.x = position.x - speed * Global.delta
+			case _ =>
+		}
 
-// 		if (position.y < 0 || position.y > Const.gameHeight) {
-// 			velocity.y = -velocity.y
-// 		}
-// 	}
+		// Change direction
+		if (position.x > Const.gameWidth-size) {
+			this.dir = 1
+		} else if (position.x < size) {
+			this.dir = 0
+		}
 
-// 	def draw(drawer: GraphicsContext): Unit = {
-// 		// Draws at center
-// 		drawer.fill = color
-// 		drawer.fillOval(position.x-size, position.y-size, size*2, size*2)
+		// Spawn bullet
+		if (Global.seconds.toInt % 2 == 0 && bullets.length < 1) {
+			val currentPlayerPos = Global.playerPos
+			_bullets +:= new ShooterBullet(new Position(this.position.x, this.position.y+size))
+		}
 
-// 		// Health Bar
-// 		val x = position.x-size
-// 		val y = position.y+size+(size/2)
-// 		val w = size*2
-// 		val h = size/4
+		// Bullets
+		if (!bullets.isEmpty) {
+			var indexes: ArrayBuffer[Int] = ArrayBuffer()
 
-// 		drawer.fill = Color.Blue
-// 		drawer.fillRect(x, y, w, h)
+			// Bullets move
+			for (i <- 0 until bullets.length) {
+				bullets(i).move
+				if (bullets(i).y > Const.gameHeight-bullets(i).size) {
+					if (!indexes.contains(i)) indexes += i
+				}
+			}
 
-// 		drawer.fill = Color.Red
-// 		drawer.fillRect(x, y, w*health.percentage, h)
-// 	}
-// }
+			// Bullets Buffer
+			indexes.foreach(index => bullets.remove(index))
+		}
+	}
+
+	def draw(drawer: GraphicsContext): Unit = {
+		// Draws at center
+		drawer.fill = color
+		drawer.fillOval(position.x-size, position.y-size, size*2, size*2)
+
+		// Health Bar
+		val x = position.x-size
+		val y = position.y+size+(size/2)
+		val w = size*2
+		val h = size/4
+
+		drawer.fill = Color.Blue
+		drawer.fillRect(x, y, w, h)
+
+		drawer.fill = Color.Red
+		drawer.fillRect(x, y, w*health.percentage, h)
+
+		// Bullets
+		bullets.foreach(b => b.draw(drawer))
+	}
+}
 
 trait Drawable {
 	val _color: Color

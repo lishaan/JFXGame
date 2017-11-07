@@ -39,8 +39,6 @@ class Game (val playerName: String) extends Stage {
 			fill = Const.color("TimerText")
 		}
 
-		def pushToScene(node: scalafx.scene.Node) = { content += node }
-
 		var keys = Map (
 			"Up"     -> false,
 			"Right"  -> false,
@@ -57,6 +55,7 @@ class Game (val playerName: String) extends Stage {
 		val drawer: GraphicsContext = canvas.graphicsContext2D
 
 		var didAppend: Boolean = false
+		var playerIsDead: Boolean = false
 
 		val timer: AnimationTimer = AnimationTimer(timeNow => {
 			if(lastTime > 0 && !Game.paused) {
@@ -72,20 +71,26 @@ class Game (val playerName: String) extends Stage {
 					indexes = ArrayBuffer()
 					for (i <- 0 until enemies.length) {
 						// Player death
-						if (intersected(enemies(i), player)) {
+						playerIsDead = intersected(enemies(i), player)
+
+						if (enemies(i).isInstanceOf[Shooter]) {
+							enemies(i).asInstanceOf[Shooter].bullets.foreach(bullet => {
+								playerIsDead = intersected(player, bullet)
+							})
+						}
+
+						if (playerIsDead) {
 							// Highscores
 							val playerScore = new Score(player.getName, seconds)
-							didAppend = Util.appendScore(Const.highscoresFile, playerScore)
 							val scores = Util.getHighscores(Const.highscoresFile)
-							if (didAppend) {
-								println(s"Score ${playerScore} appended to highscore")
-							} else {
-								println("Cannot append to highscore")
-							}
+
+							didAppend = Util.appendScore(Const.highscoresFile, playerScore)
+							
+							// if (didAppend) println(s"Score ${playerScore} appended to highscore")
+							// else println("Cannot append to highscore")
 
 							// Print the current highscore file
 							// scores.foreach(score => println(s"Name: ${score.name} Score: ${score.score}"))
-							println("draw")
 							Game.ended = true
 							timer.stop
 						}
@@ -135,9 +140,9 @@ class Game (val playerName: String) extends Stage {
 				if (keys("Left" )) player.move("Left" )
 
 				// Game speed configuration
-				if (seconds >= 20) Const.gameSpeed = 1.1
-				if (seconds >= 40) Const.gameSpeed = 1.2
-				if (seconds >= 80) Const.gameSpeed = 1.3
+				if (seconds >= 20 ) Const.gameSpeed = 1.1
+				if (seconds >= 40 ) Const.gameSpeed = 1.2
+				if (seconds >= 80 ) Const.gameSpeed = 1.3
 				if (seconds >= 100) Const.gameSpeed = 1.4
 				if (seconds >= 120) Const.gameSpeed = 1.5
 				if (seconds >= 140) Const.gameSpeed = 1.6
@@ -163,6 +168,7 @@ class Game (val playerName: String) extends Stage {
 				player.draw(drawer)
 
 				seconds += delta
+				Global.seconds = seconds
 				timerText.text = "%.1f".format(seconds)
 			}
 

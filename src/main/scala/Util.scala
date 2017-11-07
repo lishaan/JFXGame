@@ -8,6 +8,8 @@ case class Score (name: String, score: Double)
 case class Health (max: Double) { 
 	var current: Double = max 
 	def percentage: Double = current / max
+
+	def halved: Boolean = (current / max) <= 1/2
 }
 
 case class Position (var x: Double, var y: Double) {
@@ -96,58 +98,70 @@ object Const {
 	val highscoresFile: String = "resources/highscores.txt"
 
 	val SPEED: MMap[String, Double] = MMap (
-		"Player"  -> Const.gameSpeed * 170,
-		"Bullet"  -> Const.gameSpeed * 400,
-		"Seeker"  -> Const.gameSpeed * 80,
-		"Bouncer" -> Const.gameSpeed * 120
+		"Player"         -> Const.gameSpeed * 170,
+		"Bullet"         -> Const.gameSpeed * 400,
+		"ShooterBullet"  -> Const.gameSpeed * 300,
+		"Seeker"         -> Const.gameSpeed * 80,
+		"Bouncer"        -> Const.gameSpeed * 120,
+		"Shooter"        -> Const.gameSpeed * 50
 	)
 
 
 	val size: Map[String, Double] = Map (
-		"Player"  -> Const.gameScale * 20,
-		"Bullet"  -> Const.gameScale * 4,
-		"Seeker"  -> Const.gameScale * 10,
-		"Bouncer" -> Const.gameScale * 17
+		"Player"         -> Const.gameScale * 20,
+		"Bullet"         -> Const.gameScale * 4,
+		"ShooterBullet"  -> Const.gameScale * 6,
+		"Seeker"         -> Const.gameScale * 10,
+		"Bouncer"        -> Const.gameScale * 17,
+		"Shooter"        -> Const.gameScale * 25
 	)
 
 	val color: Map[String, Color] = Map (
-		"Background" -> Color.web("0c0910"),
-		"PlayArea"   -> Color.web("302D35"),
-		"TimerText"  -> Color.web("cdd1c4"),
-		"PausedText" -> Color.web("74D3AE"),
-		"Player"     -> Color.web("6B2737"),
-		"Bullet"     -> Color.web("FE5F55"),
-		"Seeker"     -> Color.web("49306B"),
-		"Bouncer"    -> Color.web("E28413")
+		"Background"    -> Color.web("0c0910"),
+		"PlayArea"      -> Color.web("302D35"),
+		"TimerText"     -> Color.web("cdd1c4"),
+		"PausedText"    -> Color.web("74D3AE"),
+		"Player"        -> Color.web("6B2737"),
+		"Bullet"        -> Color.web("FE5F55"),
+		"ShooterBullet" -> Color.web("EDAFB8"),
+		"Seeker"        -> Color.web("49306B"),
+		"Bouncer"       -> Color.web("E28413"),
+		"Shooter"       -> Color.web("EDAFB8")
 		/* Link: https://coolors.co/0c0910-cdd1c4-5c80bc-6b2737-1d7874 */
 	)
 
 	val speed: MMap[String, Double] = MMap (
-		"Player"  -> Const.gameSpeed*SPEED("Player" ),
-		"Bullet"  -> Const.gameSpeed*SPEED("Bullet" ),
-		"Seeker"  -> Const.gameSpeed*SPEED("Seeker" ),
-		"Bouncer" -> Const.gameSpeed*SPEED("Bouncer")
+		"Player"         -> Const.gameSpeed*SPEED("Player"        ),
+		"Bullet"         -> Const.gameSpeed*SPEED("Bullet"        ),
+		"ShooterBullet"  -> Const.gameSpeed*SPEED("ShooterBullet" ),
+		"Seeker"         -> Const.gameSpeed*SPEED("Seeker"        ),
+		"Bouncer"        -> Const.gameSpeed*SPEED("Bouncer"       ),
+		"Shooter"        -> Const.gameSpeed*SPEED("Shooter"       )
 	)
 
 	val health: Map[String, Double] = Map (
 		"Seeker"  -> 15,
-		"Bouncer" -> 60
+		"Bouncer" -> 60,
+		"Shooter" -> 80
 	)
 
 	def updateSpeeds: Unit = {
-		Const.speed("Player" ) = Const.gameSpeed*SPEED("Player" );
-		Const.speed("Bullet" ) = Const.gameSpeed*SPEED("Bullet" );
-		Const.speed("Seeker" ) = Const.gameSpeed*SPEED("Seeker" );
-		Const.speed("Bouncer") = Const.gameSpeed*SPEED("Bouncer");
+		Const.speed("Player" ) = Const.gameSpeed*SPEED("Player" )
+		Const.speed("Bullet" ) = Const.gameSpeed*SPEED("Bullet" )
+		Const.speed("Seeker" ) = Const.gameSpeed*SPEED("Seeker" )
+		Const.speed("Bouncer") = Const.gameSpeed*SPEED("Bouncer")
+		Const.speed("Shooter") = Const.gameSpeed*SPEED("Shooter")
 	}
 }
 
 object Global {
 	var playerPos: Position = new Position(Const.gameWidth/2, Const.gameHeight-50)
 	var delta: Double = 0
+	var seconds: Double = 0
 
 	val spawnDelays: ArrayBuffer[Spawner] = ArrayBuffer (
 		Spawner("Seeker" , 1.0, 4.0), 
-		Spawner("Bouncer", 6.0, 9.0)
+		Spawner("Bouncer", 8.0, 10.0),
+		Spawner("Shooter", 30.0, 33.0)
 	)
 }

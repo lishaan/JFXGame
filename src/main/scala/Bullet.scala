@@ -23,3 +23,21 @@ class Bullet (playerPos: Position) extends Drawable with Moveable {
 
 	def damage = _damage
 }
+
+class ShooterBullet (startPos: Position) extends Drawable with Moveable {
+	val _position: Position = new Position(startPos.x, startPos.y)
+	var _speed: Double = Const.speed("ShooterBullet")
+	val _size: Double  = Const.size("ShooterBullet")
+	val _color: Color = Const.color("ShooterBullet")
+
+	def move = { 
+		speed = Const.speed("ShooterBullet")
+		position.moveDown(speed) 
+	}
+
+	def draw(drawer: GraphicsContext): Unit = {
+		// Draws at center
+		drawer.fill = color
+		drawer.fillOval(position.x-size, position.y-size, size*2, size*2)
+	}
+}
