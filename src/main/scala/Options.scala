@@ -63,16 +63,9 @@ class Options(var playerName: String) extends Stage {
 		speedSlider.setMajorTickUnit(0.25f)
 		speedSlider.setBlockIncrement(0.1f)
 
-		val returnToMenu = new Button("Return to Menu"){
-			layoutX = 20
-			layoutY = 550
-
-			onAction = (e: ActionEvent) => closeGame
-		}
-
-		val playButton = new Button("Play") {
-			layoutX = 400
-			layoutY = 400
+		val playButton = new Button("Play"){
+			layoutX = 240
+			layoutY = 320
 			prefWidth = 300
 			style = "-fx-font-weight: bold; -fx-background-color: #aabbcc; -fx-background-radius: 50; -fx-font-size: 30; -fx-text-fill: white;"
 			onMouseEntered = (e: MouseEvent) => {
@@ -89,11 +82,25 @@ class Options(var playerName: String) extends Stage {
 				println(playerName)
 				Const.gameSpeed = speedSlider.getValue()
 				val game: Stage = new Game(playerName)
-				// stage.hide()
 				game.showAndWait()
-				// stage.show()
 			}
 		}
-		content = List(playerInfo, playerName_label, playerName_textField, speedSlider, gameSpeed_label, gameSetupInfo, returnToMenu, playButton)
+
+		val returnToMenu = new Button("Main Menu"){
+			layoutX = 240
+			layoutY = 400
+			prefWidth = 300
+			style = "-fx-font-weight: bold; -fx-background-color: #aabbcc; -fx-background-radius: 50; -fx-font-size: 30; -fx-text-fill: white;"
+			onMouseEntered = (e: MouseEvent) => {
+				style = "-fx-font-weight: bold; -fx-background-color: #00CCFF; -fx-background-radius: 50; -fx-font-size: 30; -fx-text-fill: white;"
+			}
+
+			onMouseExited = (e: MouseEvent) => {
+				style = "-fx-font-weight: bold; -fx-background-color: #aabbcc; -fx-background-radius: 50; -fx-font-size: 30; -fx-text-fill: white;"
+			}
+
+			onAction = (e: ActionEvent) => closeGame
+		}
+		content = List(playerInfo, playerName_label, playerName_textField, speedSlider, gameSpeed_label, gameSetupInfo, playButton, returnToMenu)
 	}
 }
