@@ -91,7 +91,7 @@ object Util {
 object Const {
 	val gameScale: Double = 1.2
 	var gameSpeed: Double = 1.0 
-	val gameWidth: Double = 600
+	var gameWidth: Double = 600
 	val gameHeight: Double = 600
 	val playAreaHeight: Double = Const.gameHeight/1.5
 
