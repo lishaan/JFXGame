@@ -1,7 +1,7 @@
+import scala.collection.mutable.ArrayBuffer
 import scalafx.Includes._
 import scalafx.scene.paint.Color
 import scalafx.scene.canvas.GraphicsContext
-import scala.collection.mutable.ArrayBuffer
 
 abstract class Enemy extends Drawable with Moveable with Damageable
 object Enemy {
@@ -22,12 +22,14 @@ object Enemy {
 class Seeker extends Enemy {
 	val _position: Position = new Position(math.random*Const.gameWidth, 0)
 	var _speed: Double = Const.speed("Seeker")
-	val _size: Double = Const.size("Seeker")
+	var _size: Double = Const.size("Seeker")
 	val _color: Color = Const.color("Seeker")
 	val _health: Health = Health(Const.health("Seeker"))
 
 	def move = {
 		speed = Const.speed("Seeker")
+		size = Const.size("Seeker")
+
 		val playerPos: Position = Global.playerPos
 
 		val dx: Double = playerPos.x-position.x
@@ -61,7 +63,7 @@ class Seeker extends Enemy {
 class Bouncer extends Enemy {
 	val _position: Position = new Position(math.random*Const.gameWidth, size + 50)
 	var _speed: Double = Const.speed("Bouncer")
-	val _size: Double = Const.size("Bouncer")
+	var _size: Double = Const.size("Bouncer")
 	val _color: Color = Const.color("Bouncer")
 	val _health: Health = Health(Const.health("Bouncer"))
 
@@ -70,7 +72,8 @@ class Bouncer extends Enemy {
 	def velocity: Velocity = _velocity
 
 	def move = {
-		speed = Const.size("Bouncer")
+		speed = Const.speed("Bouncer")
+		size = Const.size("Bouncer")
 		position.x = position.x + velocity.x * Global.delta
 		position.y = position.y + velocity.y * Global.delta
 
@@ -114,19 +117,18 @@ class Shooter extends Enemy {
 	)
 
 	var _speed: Double = Const.speed("Shooter")
-	val _size: Double = Const.size("Shooter")
+	var _size: Double = Const.size("Shooter")
 	val _color: Color = Const.color("Shooter")
 	val _health: Health = Health(Const.health("Shooter"))
 
 	private var _bullets: ArrayBuffer[ShooterBullet] = ArrayBuffer()
 	private var dir: Int = 0
 
-
-
 	def bullets: ArrayBuffer[ShooterBullet] = _bullets
 
 	def move = {
-		speed = Const.size("Shooter")
+		speed = Const.speed("Shooter")
+		size = Const.size("Shooter")
 
 		position.x = size*math.cos(_rotationRadius)+_rotationPos.x + speed * Global.delta
 		position.y = size*math.sin(_rotationRadius)+_rotationPos.y + speed * Global.delta
@@ -204,7 +206,7 @@ trait Drawable {
 trait Moveable {
 	val _position: Position
 	var _speed: Double
-	val _size: Double
+	var _size: Double
 	
 	def position: Position = _position
 	def speed: Double = _speed
@@ -214,6 +216,7 @@ trait Moveable {
 	def y: Double = _position.y
 
 	def speed_=(speed: Double) = { _speed = speed }
+	def size_=(size: Double) = { _size = size }
 
 	def move: Unit
 	def remove: Unit = { _position.x = -800 }

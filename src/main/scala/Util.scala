@@ -1,6 +1,6 @@
-import scalafx.Includes._
 import scala.collection.mutable.{Map => MMap, ArrayBuffer}
 import scala.collection.immutable.Map
+import scalafx.Includes._
 import scalafx.scene.paint.Color
 
 case class Score (name: String, score: Double)
@@ -89,31 +89,32 @@ object Util {
 }
 
 object Const {
-	val gameScale: Double = 1.2
+	var gameScale: Double = 1.2
 	var gameSpeed: Double = 1.0 
-	var gameWidth: Double = 600
+	val gameWidth: Double = 600
 	val gameHeight: Double = 600
 	val playAreaHeight: Double = Const.gameHeight/1.5
 
 	val highscoresFile: String = "resources/highscores.txt"
+	var appendToHighscoresFile: Boolean = true
 
 	val SPEED: MMap[String, Double] = MMap (
 		"Player"         -> Const.gameSpeed * 170,
 		"Bullet"         -> Const.gameSpeed * 400,
-		"ShooterBullet"  -> Const.gameSpeed * 300,
 		"Seeker"         -> Const.gameSpeed * 80,
 		"Bouncer"        -> Const.gameSpeed * 120,
-		"Shooter"        -> Const.gameSpeed * 70
+		"Shooter"        -> Const.gameSpeed * 70,
+		"ShooterBullet"  -> Const.gameSpeed * 300
 	)
 
 
-	val size: Map[String, Double] = Map (
+	val SIZE: MMap[String, Double] = MMap (
 		"Player"         -> Const.gameScale * 20,
 		"Bullet"         -> Const.gameScale * 4,
-		"ShooterBullet"  -> Const.gameScale * 6,
 		"Seeker"         -> Const.gameScale * 10,
 		"Bouncer"        -> Const.gameScale * 17,
-		"Shooter"        -> Const.gameScale * 30
+		"Shooter"        -> Const.gameScale * 30,
+		"ShooterBullet"  -> Const.gameScale * 6
 	)
 
 	val color: Map[String, Color] = Map (
@@ -131,12 +132,21 @@ object Const {
 	)
 
 	val speed: MMap[String, Double] = MMap (
-		"Player"         -> Const.gameSpeed*SPEED("Player"        ),
-		"Bullet"         -> Const.gameSpeed*SPEED("Bullet"        ),
-		"ShooterBullet"  -> Const.gameSpeed*SPEED("ShooterBullet" ),
-		"Seeker"         -> Const.gameSpeed*SPEED("Seeker"        ),
-		"Bouncer"        -> Const.gameSpeed*SPEED("Bouncer"       ),
-		"Shooter"        -> Const.gameSpeed*SPEED("Shooter"       )
+		"Player"         -> Const.gameSpeed*SPEED("Player"),
+		"Bullet"         -> Const.gameSpeed*SPEED("Bullet"),
+		"Seeker"         -> Const.gameSpeed*SPEED("Seeker"),
+		"Bouncer"        -> Const.gameSpeed*SPEED("Bouncer"),
+		"Shooter"        -> Const.gameSpeed*SPEED("Shooter"),
+		"ShooterBullet"  -> Const.gameSpeed*SPEED("ShooterBullet")
+	)
+
+	val size: MMap[String, Double] = MMap (
+		"Player"         -> Const.gameScale*SIZE("Player"),
+		"Bullet"         -> Const.gameScale*SIZE("Bullet"),
+		"Seeker"         -> Const.gameScale*SIZE("Seeker"),
+		"Bouncer"        -> Const.gameScale*SIZE("Bouncer"),
+		"Shooter"        -> Const.gameScale*SIZE("Shooter"),
+		"ShooterBullet"  -> Const.gameScale*SIZE("ShooterBullet")
 	)
 
 	val health: Map[String, Double] = Map (
@@ -145,12 +155,20 @@ object Const {
 		"Shooter" -> 100
 	)
 
-	def updateSpeeds: Unit = {
-		Const.speed("Player" ) = Const.gameSpeed*SPEED("Player" )
-		Const.speed("Bullet" ) = Const.gameSpeed*SPEED("Bullet" )
-		Const.speed("Seeker" ) = Const.gameSpeed*SPEED("Seeker" )
+	def updateConsts: Unit = {
+		Const.speed("Player" ) = Const.gameSpeed*SPEED("Player")
+		Const.speed("Bullet" ) = Const.gameSpeed*SPEED("Bullet")
+		Const.speed("Seeker" ) = Const.gameSpeed*SPEED("Seeker")
 		Const.speed("Bouncer") = Const.gameSpeed*SPEED("Bouncer")
 		Const.speed("Shooter") = Const.gameSpeed*SPEED("Shooter")
+		Const.speed("ShooterBullet" ) = Const.gameSpeed*SPEED("ShooterBullet")
+
+		Const.size("Player" ) = Const.gameScale*SIZE("Player")
+		Const.size("Bullet" ) = Const.gameScale*SIZE("Bullet")
+		Const.size("Seeker" ) = Const.gameScale*SIZE("Seeker")
+		Const.size("Bouncer") = Const.gameScale*SIZE("Bouncer")
+		Const.size("Shooter") = Const.gameScale*SIZE("Shooter")
+		Const.size("ShooterBullet" ) = Const.gameScale*SIZE("ShooterBullet")
 	}
 }
 

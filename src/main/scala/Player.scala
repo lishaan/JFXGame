@@ -11,13 +11,14 @@ class Player (name: String) extends Drawable with Moveable {
 
 	val _position: Position = new Position(Const.gameWidth/2, Const.gameHeight-50)
 	var _speed: Double = Const.speed("Player")
-	val _size: Double = Const.size("Player")
+	var _size: Double = Const.size("Player")
 	val _color: Color = Const.color("Player")
 
 	def move = println("Error: Parameter (direction: String) required")
 	def move(direction: String): Unit = {
 		speed = Const.speed("Player")
-		
+		size = Const.size("Player")
+
 		if (direction.equals("Up") && (position.y-size > Const.playAreaHeight)) {
 			position.moveUp(speed)
 		} else if (direction.equals("Right") && (position.x+size < Const.gameWidth)) {

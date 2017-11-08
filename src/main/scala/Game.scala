@@ -1,4 +1,3 @@
-import scala.io.Source 
 import scala.collection.mutable.{ArrayBuffer, Map}
 import scalafx.Includes._
 import scalafx.application.JFXApp
@@ -17,7 +16,6 @@ import scalafx.scene.canvas.{Canvas, GraphicsContext}
 object Game {
 	var paused = false
 	var ended = false
-
 	def togglePause = { Game.paused = !Game.paused }
 }
 
@@ -27,10 +25,10 @@ class Game (val playerName: String) extends Stage {
 
 	title = "JFXGame - Play"
 	resizable = false
-	Game.paused = false
-	Game.ended = false
 
 	scene = new Scene(Const.gameWidth, Const.gameHeight) {
+		Game.paused = false
+		Game.ended = false
 		var enemies: ArrayBuffer[Enemy] = ArrayBuffer()
 		var bullets: ArrayBuffer[Bullet] = ArrayBuffer()
 		
@@ -61,6 +59,7 @@ class Game (val playerName: String) extends Stage {
 			if(lastTime > 0 && !Game.paused) {
 				val delta = (timeNow-lastTime)/1e9
 				
+				Const.updateConsts
 				Global.playerPos = player.position
 				Global.delta = delta
 
@@ -70,6 +69,7 @@ class Game (val playerName: String) extends Stage {
 				if (!enemies.isEmpty) {
 					indexes = ArrayBuffer()
 					for (i <- 0 until enemies.length) {
+						
 						// Player death
 						playerIsDead = intersected(enemies(i), player)
 
@@ -79,15 +79,14 @@ class Game (val playerName: String) extends Stage {
 							})
 						}
 
-						if (playerIsDead) { //playerIsDead
+						if (playerIsDead) {
 							// Highscores
 							val playerScore = new Score(player.getName, seconds)
 							val scores = Util.getHighscores(Const.highscoresFile)
 
-							didAppend = Util.appendScore(Const.highscoresFile, playerScore)
-							
-							// if (didAppend) println(s"Score ${playerScore} appended to highscore")
-							// else println("Cannot append to highscore")
+							if (Const.appendToHighscoresFile) {
+								didAppend = Util.appendScore(Const.highscoresFile, playerScore)
+							}
 
 							// Print the current highscore file
 							// scores.foreach(score => println(s"Name: ${score.name} Score: ${score.score}"))
@@ -140,13 +139,14 @@ class Game (val playerName: String) extends Stage {
 				if (keys("Left" )) player.move("Left" )
 
 				// Game speed configuration
-				if (seconds >= 20 ) Const.gameSpeed = 1.1
-				if (seconds >= 40 ) Const.gameSpeed = 1.2
-				if (seconds >= 80 ) Const.gameSpeed = 1.3
-				if (seconds >= 100) Const.gameSpeed = 1.4
-				if (seconds >= 120) Const.gameSpeed = 1.5
-				if (seconds >= 140) Const.gameSpeed = 1.6
-				Const.updateSpeeds
+				if (!Const.appendToHighscoresFile) {					
+					if (seconds >= 20 ) Const.gameSpeed = 1.1
+					if (seconds >= 40 ) Const.gameSpeed = 1.2
+					if (seconds >= 80 ) Const.gameSpeed = 1.3
+					if (seconds >= 100) Const.gameSpeed = 1.4
+					if (seconds >= 120) Const.gameSpeed = 1.5
+					if (seconds >= 140) Const.gameSpeed = 1.6
+				}
 
 				// Enemies Spawn
 				Global.spawnDelays.foreach(delay => {
