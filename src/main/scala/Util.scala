@@ -103,7 +103,7 @@ object Const {
 		"ShooterBullet"  -> Const.gameSpeed * 300,
 		"Seeker"         -> Const.gameSpeed * 80,
 		"Bouncer"        -> Const.gameSpeed * 120,
-		"Shooter"        -> Const.gameSpeed * 50
+		"Shooter"        -> Const.gameSpeed * 70
 	)
 
 
@@ -113,7 +113,7 @@ object Const {
 		"ShooterBullet"  -> Const.gameScale * 6,
 		"Seeker"         -> Const.gameScale * 10,
 		"Bouncer"        -> Const.gameScale * 17,
-		"Shooter"        -> Const.gameScale * 25
+		"Shooter"        -> Const.gameScale * 30
 	)
 
 	val color: Map[String, Color] = Map (
@@ -142,7 +142,7 @@ object Const {
 	val health: Map[String, Double] = Map (
 		"Seeker"  -> 15,
 		"Bouncer" -> 60,
-		"Shooter" -> 80
+		"Shooter" -> 100
 	)
 
 	def updateSpeeds: Unit = {
@@ -161,7 +161,7 @@ object Global {
 
 	val spawnDelays: ArrayBuffer[Spawner] = ArrayBuffer (
 		Spawner("Seeker" , 1.0, 4.0), 
-		Spawner("Bouncer", 8.0, 10.0),
-		Spawner("Shooter", 30.0, 33.0)
+		Spawner("Bouncer", 10.0, 12.0),
+		Spawner("Shooter", 30.0, 40.0)
 	)
 }

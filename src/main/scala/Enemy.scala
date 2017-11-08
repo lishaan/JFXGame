@@ -103,7 +103,16 @@ class Bouncer extends Enemy {
 }
 
 class Shooter extends Enemy {
-	val _position: Position = new Position(math.random*Const.gameWidth, math.random*Const.playAreaHeight)
+	private var _rotation: Double = 0
+	private var _rotationSpeed: Double = Const.speed("Shooter")*0.60
+	private var _rotationRadius: Double = size*4
+
+	val _rotationPos: Position = new Position(math.random*Const.gameWidth, math.random*Const.playAreaHeight)
+	val _position: Position = new Position(
+		size*math.cos(_rotationRadius)+_rotationPos.x, 
+		size*math.sin(_rotationRadius)+_rotationPos.y
+	)
+
 	var _speed: Double = Const.speed("Shooter")
 	val _size: Double = Const.size("Shooter")
 	val _color: Color = Const.color("Shooter")
@@ -112,21 +121,31 @@ class Shooter extends Enemy {
 	private var _bullets: ArrayBuffer[ShooterBullet] = ArrayBuffer()
 	private var dir: Int = 0
 
+
+
 	def bullets: ArrayBuffer[ShooterBullet] = _bullets
 
 	def move = {
 		speed = Const.size("Shooter")
 
+		position.x = size*math.cos(_rotationRadius)+_rotationPos.x + speed * Global.delta
+		position.y = size*math.sin(_rotationRadius)+_rotationPos.y + speed * Global.delta
+
+		_rotationRadius += 0.03
+		if (_rotationRadius > (2*math.Pi)) {
+			_rotationRadius = 0
+		}
+
 		dir match {
-			case 0 => position.x = position.x + speed * Global.delta
-			case 1 => position.x = position.x - speed * Global.delta
+			case 0 => _rotationPos.x = _rotationPos.x + speed * Global.delta
+			case 1 => _rotationPos.x = _rotationPos.x - speed * Global.delta
 			case _ =>
 		}
 
 		// Change direction
-		if (position.x > Const.gameWidth-size) {
+		if (_rotationPos.x > Const.gameWidth-size) {
 			this.dir = 1
-		} else if (position.x < size) {
+		} else if (_rotationPos.x < size) {
 			this.dir = 0
 		}
 

@@ -79,7 +79,7 @@ class Game (val playerName: String) extends Stage {
 							})
 						}
 
-						if (playerIsDead) {
+						if (playerIsDead) { //playerIsDead
 							// Highscores
 							val playerScore = new Score(player.getName, seconds)
 							val scores = Util.getHighscores(Const.highscoresFile)
