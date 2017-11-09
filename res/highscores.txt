@@ -1,0 +1,8 @@
+Name Score
+Daniel 6.8
+Jia Yung 9.2
+Hans 8.8
+Lishan 7.5
+David 9.0
+Lee 8.1
+Valiant 3.3

@@ -16,6 +16,7 @@ import scalafx.scene.canvas.{Canvas, GraphicsContext}
 object Game {
 	var paused = false
 	var ended = false
+	var retry = false
 	def togglePause = { Game.paused = !Game.paused }
 }
 
@@ -29,6 +30,9 @@ class Game (val playerName: String) extends Stage {
 	scene = new Scene(Const.gameWidth, Const.gameHeight) {
 		Game.paused = false
 		Game.ended = false
+		Game.retry = false
+		Global.seconds = 0.0
+
 		var enemies: ArrayBuffer[Enemy] = ArrayBuffer()
 		var bullets: ArrayBuffer[Bullet] = ArrayBuffer()
 		
@@ -206,9 +210,20 @@ class Game (val playerName: String) extends Stage {
 					if (!Game.ended) Game.togglePause
 					// TODO: View the highscore file in the highscore menu 
 				}
+
 				case KeyCode.Q => { 
-					timer.stop
-					if (Game.paused || Game.ended) closeGame
+					if (Game.paused || Game.ended) {
+						timer.stop
+						closeGame
+					}
+				}
+
+				case KeyCode.R => {
+					if (Game.ended) {
+						Game.retry = true
+						timer.stop
+						closeGame
+					}
 				}
 
 				case _ =>
@@ -232,6 +247,9 @@ class Game (val playerName: String) extends Stage {
 
 		drawer.font = new scalafx.scene.text.Font(fontSize*0.50)
 		drawer.fillText("Press Q to go back to Main Menu", Const.gameWidth/2, Const.gameHeight/2 + (fontSize*2))
+
+		drawer.font = new scalafx.scene.text.Font(fontSize*0.50)
+		drawer.fillText("Press R to try again", Const.gameWidth/2, Const.gameHeight/2 + (fontSize*3))
 
 		drawer.font = new scalafx.scene.text.Font(fontSize*0.50)
 		drawer.fillText("Press Esc to open the highscore menu", Const.gameWidth/2, Const.gameHeight/2 + fontSize)

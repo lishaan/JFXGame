@@ -29,15 +29,30 @@ case class Spawner (val enemyName: String, val delayHead: Double, val delayTail:
 	def random: Double = (delayHead+_random.nextInt((delayTail-delayHead).toInt+1))
 
 	var counter: Double = random
+	println(s"enemy: $enemyName will spawn in $counter seconds")
 	
 	def stopped: Boolean = (counter <= 0)
-	def reset: Unit = { counter = random }
+	def reset: Unit = { 
+		counter = random 
+		println(s"enemy: $enemyName will spawn in $counter seconds")
+	}
 	def update: Unit = { counter -= Global.delta }
 }
 
 object Util {
+	def clearHighscores(file: String): Unit = {
+		try {
+			val printWriter = new java.io.PrintWriter(new java.io.File(file))
+			printWriter.print("Name Score")
+			printWriter.close
+		} catch {
+			case _: Throwable => println("Error: Highscore file not found (WRITE)")
+		}
+	}
+
 	def getHighscores(file: String): List[Score] = {
 		var scores: ArrayBuffer[Score] = ArrayBuffer()
+
 		try {
 			val fScanner = new java.util.Scanner(new java.io.File(file))
 			val firstLine = fScanner.nextLine
@@ -66,8 +81,14 @@ object Util {
 
 	def appendScore(file: String, score: Score): Boolean = {
 		try {
+			var lowest: Score = null
 			val sorted: List[Score] = getHighscores(file)
-			val lowest: Score = sorted(sorted.length-1)
+
+			if (sorted.isEmpty) {
+				lowest = new Score("", 0)
+			} else {
+				lowest = sorted(sorted.length-1)
+			}
 
 			val shouldAppend: Boolean = (sorted.length >= 10 && lowest.score > score.score)
 
@@ -75,13 +96,13 @@ object Util {
 				return false
 			} else {			
 				val printWriter = new java.io.PrintWriter(new java.io.FileOutputStream(new java.io.File(file), true))
-				printWriter.write(s"\n${score.name} ${"%.2f".format(score.score)}")
+				printWriter.write(s"\n${score.name} ${"%.1f".format(score.score)}")
 				printWriter.close
 				return true
 			}
 
 		} catch {
-			case _: Throwable => println("Error: Highscore file not found (WRITE)")
+			case e: Throwable => println(s"Error: Highscore file not found (WRITE)\nException ${e.getMessage}")
 		}
 
 		return false
@@ -95,7 +116,8 @@ object Const {
 	val gameHeight: Double = 600
 	val playAreaHeight: Double = Const.gameHeight/1.5
 
-	val highscoresFile: String = "resources/highscores.txt"
+
+	val highscoresFile: String = "res/highscores.txt"
 	var appendToHighscoresFile: Boolean = true
 
 	val SPEED: MMap[String, Double] = MMap (
@@ -177,7 +199,7 @@ object Global {
 	var delta: Double = 0
 	var seconds: Double = 0
 
-	val spawnDelays: ArrayBuffer[Spawner] = ArrayBuffer (
+	var spawnDelays: ArrayBuffer[Spawner] = ArrayBuffer (
 		Spawner("Seeker" , 1.0, 4.0), 
 		Spawner("Bouncer", 10.0, 12.0),
 		Spawner("Shooter", 30.0, 40.0)

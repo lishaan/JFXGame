@@ -61,7 +61,7 @@ class Seeker extends Enemy {
 }
 
 class Bouncer extends Enemy {
-	val _position: Position = new Position(math.random*Const.gameWidth, size + 50)
+	val _position: Position = new Position(math.random*Const.gameWidth - 50, size + 50)
 	var _speed: Double = Const.speed("Bouncer")
 	var _size: Double = Const.size("Bouncer")
 	val _color: Color = Const.color("Bouncer")

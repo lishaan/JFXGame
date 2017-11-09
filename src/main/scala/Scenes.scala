@@ -1,4 +1,5 @@
 import scala.collection.immutable.Map
+import scala.collection.mutable.ArrayBuffer
 import scalafx.Includes._
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
@@ -16,14 +17,14 @@ import scalafx.scene.input.{KeyEvent, KeyCode, KeyCodeCombination, KeyCombinatio
 
 object Scenes {
 	val color: Map[String, Color] = Map(
-		"Background" -> Color.web("051923")
+		"Background" -> Color.web("000D0D")
 	)
 
 	val buttonStyle: Map[String, String] = Map(
-		"Normal" -> "-fx-font-weight: bold; -fx-background-color: #1E3E4D; -fx-background-radius: 50; -fx-font-size: 24; -fx-text-fill: white;",
-		"onEntered" -> "-fx-font-weight: bold; -fx-background-color: #4A6978; -fx-background-radius: 50; -fx-font-size: 24; -fx-text-fill: white;",
-		"onExited" -> "-fx-font-weight: bold; -fx-background-color: #1E3E4D; -fx-background-radius: 50; -fx-font-size: 24; -fx-text-fill: white;",
-		"onAction" -> "-fx-font-weight: bold; -fx-background-color: #4A6978; -fx-background-radius: 50; -fx-font-size: 24; -fx-text-fill: white; -fx-rotate: 5"
+		"Normal" -> "-fx-font-weight: bold; -fx-background-color: #004E52; -fx-background-radius: 50; -fx-font-size: 24; -fx-text-fill: #44f9ff;",
+		"onEntered" -> "-fx-font-weight: bold; -fx-background-color: #003133; -fx-background-radius: 50; -fx-font-size: 24; -fx-text-fill: #44f9ff;",
+		"onExited" -> "-fx-font-weight: bold; -fx-background-color: #004E52; -fx-background-radius: 50; -fx-font-size: 24; -fx-text-fill: #44f9ff;",
+		"onAction" -> "-fx-font-weight: bold; -fx-background-color: #003133; -fx-background-radius: 50; -fx-font-size: 24; -fx-text-fill: #44f9ff; -fx-rotate: 5"
 	)
 }
 
@@ -53,21 +54,25 @@ class MainMenu (_width: Double, _height: Double) extends Scene (_width, _height)
 	}
 
 	val highScoreButton = new Button("Highscores") {
-		prefWidth = 250
+		prefWidth = 200
 		prefHeight = 40
-		layoutX = Const.gameWidth/2 - ((250)/2)
+		layoutX = Const.gameWidth/2 - ((200)/2)
 		layoutY = centerLayoutY
 		style = Scenes.buttonStyle("Normal")
 
 		onMouseEntered = (e: MouseEvent) => style = Scenes.buttonStyle("onEntered")
 		onMouseExited = (e: MouseEvent) => style = Scenes.buttonStyle("onExited")
-		onAction = (e: ActionEvent) => style = Scenes.buttonStyle("onAction")
+		onAction = (e: ActionEvent) => {
+			style = Scenes.buttonStyle("onAction")
+			App.stage.title = "JFXGame - Highscores"
+			App.stage.scene = new Highscores
+		}
 	}
 
 	val exitButton = new Button("Exit") {
-		prefWidth = 150
+		prefWidth = 200
 		prefHeight = 40
-		layoutX = Const.gameWidth/2 - (150/2)
+		layoutX = Const.gameWidth/2 - (200/2)
 		layoutY = centerLayoutY + layoutYSpacing
 		style = Scenes.buttonStyle("Normal")
 
@@ -86,8 +91,8 @@ class GameSetup (_width: Double, _height: Double) extends Scene (_width, _height
 
 	var playerName = "Player"
 
-	val returnToMenu = new Button("<-") {
-		prefWidth = 60
+	val returnToMenu = new Button("«") {
+		prefWidth = 40
 		layoutX = 20
 		layoutY = 20
 		style = Scenes.buttonStyle("Normal")
@@ -102,27 +107,42 @@ class GameSetup (_width: Double, _height: Double) extends Scene (_width, _height
 
 	val pushY = 100
 
-	val playerInfo = new Label("Game Setup") {
+	val headerText = new Label("Game Setup") {
 		prefWidth = 250
 		style = "-fx-font: 35 Regular"
-		layoutX = Const.gameWidth/2 - (250/2) + 15
+		layoutX = Const.gameWidth/2 - (250/2) + 15 + 4
 		layoutY = 120
 	}
-	playerInfo.setTextFill(Color.web("#315060"))
+	headerText.setTextFill(Color.web("#44f9ff"))
 
 	val playerName_label = new Label("Name") {
 		prefWidth = 200
 		style = "-fx-font: 24 Regular"
-		layoutX = Const.gameWidth/2 - (200/2) - 15
-		layoutY = 140+pushY
+		layoutX = Const.gameWidth/2 - (200/2) - 15 + 20
+		layoutY = 140+pushY+0 - 10
 	}
-	playerName_label.setTextFill(Color.web("#315060"))
+	playerName_label.setTextFill(Color.web("#00BCC5"))
 
 	val playerName_textField = new TextField {
 		prefWidth = 100
-		layoutX = Const.gameWidth/2 - (100/2) + 15
-		layoutY = 140+pushY+1
+		layoutX = Const.gameWidth/2 - (100/2) + 15 + 20
+		layoutY = 140+pushY+1 - 10
 	}
+	playerName_textField.textProperty.addListener((o, oldVal, newVal) => {
+		if (playerName_textField.getText == null || playerName_textField.getText.trim.isEmpty) {
+			playerNameWarningText.visible = true
+		} else {
+			playerNameWarningText.visible = false
+		}
+	})
+
+	val playerNameWarningText = new Label("The default player name is \"Player\"") {
+		prefWidth = 300
+		style = "-fx-font: 14 Regular; -fx-text-alignment: center;"
+		layoutX = Const.gameWidth/2 - (300/2)+32
+		layoutY = 140+pushY+32.5
+	}
+	playerNameWarningText.setTextFill(Color.web("#315060"))
 
 	val gameSpeedSlider_label = new Label("Game Speed") {
 		prefWidth = 160
@@ -130,7 +150,7 @@ class GameSetup (_width: Double, _height: Double) extends Scene (_width, _height
 		layoutX = Const.gameWidth/2 - (200/2) - 90 + 30
 		layoutY = 200+pushY
 	}
-	gameSpeedSlider_label.setTextFill(Color.web("#315060"))
+	gameSpeedSlider_label.setTextFill(Color.web("#00BCC5"))
 
 	val gameScaleSlider_label = new Label("Game Scale") {
 		prefWidth = 160
@@ -138,7 +158,7 @@ class GameSetup (_width: Double, _height: Double) extends Scene (_width, _height
 		layoutX = Const.gameWidth/2 - (200/2) + 90 + 30 + 20
 		layoutY = 200+pushY
 	}
-	gameScaleSlider_label.setTextFill(Color.web("#315060"))
+	gameScaleSlider_label.setTextFill(Color.web("#00BCC5"))
 
 	val gameSpeed_slider = new Slider(1, 2, 1) {
 		prefWidth = 180
@@ -149,8 +169,8 @@ class GameSetup (_width: Double, _height: Double) extends Scene (_width, _height
 		showTickLabels = true
 		majorTickUnit = 0.5
 	}
-	gameSpeed_slider.valueProperty.addListener { 
-		(o: javafx.beans.value.ObservableValue[_ <: Number], oldVal: Number, newVal: Number) => {
+	gameSpeed_slider.valueProperty.addListener( 
+		(o, oldVal, newVal) => {
 			if (newVal.doubleValue <= 1) {
 				if (gameScale_slider.getValue() <= 1) {
 					warningText.visible = false
@@ -159,7 +179,7 @@ class GameSetup (_width: Double, _height: Double) extends Scene (_width, _height
 				warningText.visible = true
 			}
 		}
-	}
+	)
 
 	val gameScale_slider = new Slider(1, 2, 1) {
 		prefWidth = 180
@@ -170,8 +190,8 @@ class GameSetup (_width: Double, _height: Double) extends Scene (_width, _height
 		showTickLabels = true
 		majorTickUnit = 0.5
 	}
-	gameScale_slider.valueProperty.addListener { 
-		(o: javafx.beans.value.ObservableValue[_ <: Number], oldVal: Number, newVal: Number) => {
+	gameScale_slider.valueProperty.addListener(
+		(o, oldVal, newVal) => {
 			if (newVal.doubleValue <= 1) {
 				if (gameSpeed_slider.getValue() <= 1) {
 					warningText.visible = false
@@ -180,7 +200,7 @@ class GameSetup (_width: Double, _height: Double) extends Scene (_width, _height
 				warningText.visible = true
 			}
 		}
-	}
+	)
 
 	val warningText = new Label("If you change the game speed/scale\nthe score won't append to the highscores") {
 		visible = false
@@ -201,9 +221,9 @@ class GameSetup (_width: Double, _height: Double) extends Scene (_width, _height
 
 		onAction = (e: ActionEvent) => { 
 			style = Scenes.buttonStyle("onAction")
-			playerName = playerName_textField.getText()
+			playerName = playerName_textField.getText
 
-			if (playerName == null || playerName.trim().isEmpty()) {
+			if (playerName == null || playerName.trim.isEmpty) {
 				playerName = "Player"
 			}
 
@@ -221,87 +241,108 @@ class GameSetup (_width: Double, _height: Double) extends Scene (_width, _height
 			App.stage.title = "JFXGame - Main Menu"
 
 			println(s"Game starting with playerName: $playerName")
-			val game: Game = new Game(playerName)
-			game.showAndWait()
+			do {
+				val game: Game = new Game(playerName)
+				game.showAndWait()
+			} while (Game.retry)
 
 			App.stage.show
 		}
 	}
 
-	content = List(playerInfo, playerName_label, playerName_textField, gameScaleSlider_label, gameSpeed_slider, gameScale_slider, gameSpeedSlider_label, playButton, returnToMenu, warningText)
+	content = List(headerText, playerName_label, playerName_textField, gameScaleSlider_label, gameSpeed_slider, gameScale_slider, gameSpeedSlider_label, playButton, returnToMenu, warningText, playerNameWarningText)
 }
 
-/*
-Menu Bar
+class Highscores (_width: Double, _height: Double) extends Scene (_width, _height) {
 
-val menuBar = new MenuBar{
-	useSystemMenuBar = true
-	minHeight = 30
-	menus.add(new Menu("Tssssd"))
-}
+	def this() = this(Const.gameWidth, Const.gameHeight)
 
-menuBar.prefWidth = 500
+	fill = Scenes.color("Background")
 
-val fileMenu = new Menu("File")
-val openItem = new MenuItem("Open a New Game"){
-	accelerator = new KeyCodeCombination(KeyCode.O, KeyCombination.ControlDown)
-	onAction = (e: ActionEvent) => { 
-		val nameDialogBox = new TextInputDialog(defaultValue = "Lishaan"){
-			headerText = "Name"
-			contentText = "Please enter your name: "
-		}
+	val returnToMenu = new Button("«") {
+		prefWidth = 40
+		layoutX = 20
+		layoutY = 20
+		style = Scenes.buttonStyle("Normal")
+		onMouseEntered = (e: MouseEvent) => style = Scenes.buttonStyle("onEntered")
+		onMouseExited = (e: MouseEvent) => style = Scenes.buttonStyle("onExited")
 
-		val result = nameDialogBox.showAndWait()
-
-		result match {
-			case Some(name) => println(s"Your name: $name")
-				val game: Stage = new Game(name)
-				App.stage.hide()
-				game.showAndWait()
-				App.stage.show()
-			case None => println("Game will start with default name")
+		onAction = (e: ActionEvent) => {
+			App.stage.title = "JFXGame - Main Menu"
+			App.stage.scene = new MainMenu
 		}
 	}
-}
 
-val saveItem = new MenuItem("HighScore"){
-}
+	val pushY = 100
 
-val exitItem = new MenuItem("Exit"){
-	accelerator = new KeyCodeCombination(KeyCode.Escape)
-	onAction = (e: ActionEvent) => sys.exit(0)
-}
-
-fileMenu.items = List(openItem, saveItem, new SeparatorMenuItem, exitItem)
-
-val optionsMenu = new Menu("Options")
-val controlsItem = new MenuItem("Controls"){
-	onAction = (e: ActionEvent) => {
-		// val openOptions : Stage = new Options(playerName)
-		// parentStage.hide()
-		// openOptions.showAndWait()
-		// parentStage.show()
+	val headerText = new Label("Highscores") {
+		prefWidth = 250
+		style = "-fx-font: 35 Regular"
+		layoutX = Const.gameWidth/2 - (250/2) + 29
+		layoutY = 120
 	}
-}
+	headerText.setTextFill(Color.web("#44f9ff"))
 
-optionsMenu.items = List(controlsItem)
+	val highscores: List[Score] = Util.getHighscores(Const.highscoresFile)
 
-val helpMenu = new Menu("Help")
+	var scoreNodes: ArrayBuffer[Node] = ArrayBuffer()
 
-val helpAbout = new MenuItem("About"){
-	onAction = (e: ActionEvent) => {
-		var alert = new Alert(AlertType.Information) {
-			// initOwner(this.parentStage)
-			title = "Help"
-			headerText = "About Us"
-			contentText = "About Game: Simple game that permits the user to kill enemies. The Spacebar is used to release bullets and the Right/Left key are used to navigate to right and left respectively. Instructions: \n\n+ Right/Left Key: To move the player to right and left respectively while hitting the bullets to kill the enemies\n+ Space bar: Tap to release bullets by bearing in mind the time taken for the bullet to reach the enemies.\n"
+	val nameCol_label = new Label("Name") {
+		prefWidth = 250
+		style = "-fx-font: 17 Regular"
+		layoutX = Const.gameWidth/2 - (250/2) - 26 + 20
+		layoutY = 180
+	}
+	nameCol_label.setTextFill(Color.web("#00BCC5"))
+
+	val scoreCol_label = new Label("Score") {
+		prefWidth = 250
+		style = "-fx-font: 17 Regular"
+		layoutX = Const.gameWidth/2 + (250/2) - 36 - 20
+		layoutY = 180
+	}
+	scoreCol_label.setTextFill(Color.web("#00BCC5"))
+
+	var gap: Int = 0
+	var count: Int = 1
+
+	for (score <- highscores) {
+		val name_label = new Label(s"$count. ${score.name.toString}") {
+			prefWidth = 250
+			style = "-fx-font: 17 Regular"
+			layoutX = Const.gameWidth/2 - (250/2) - 26 + 20
+			layoutY = 210+gap
 		}
-		alert.getDialogPane().setPrefSize(480, 320);
-		val results = alert.showAndWait()
-	}
-	accelerator = new KeyCodeCombination(KeyCode.A, KeyCombination.ControlDown)
-}
+		name_label.setTextFill(Color.web("#00BCC5"))
 
-helpMenu.items = List(helpAbout)
-content = menuBar
-*/
+		val score_label = new Label(score.score.toString) {
+			prefWidth = 250
+			style = "-fx-font: 17 Regular"
+			layoutX = Const.gameWidth/2 + (250/2) - 36 - 20
+			layoutY = 210+gap
+		}
+		score_label.setTextFill(Color.web("#00BCC5"))
+
+		scoreNodes += name_label
+		scoreNodes += score_label
+		gap += 30
+		count += 1
+	}
+
+	val resetButton = new Button("Reset") {
+		prefWidth = 150
+		layoutX = Const.gameWidth/2 - (150/2)
+		layoutY = 210+gap+18//320+pushY+6
+		style = Scenes.buttonStyle("Normal")
+		onMouseEntered = (e: MouseEvent) => style = Scenes.buttonStyle("onEntered")
+		onMouseExited = (e: MouseEvent) => style = Scenes.buttonStyle("onExited")
+
+		onAction = (e: ActionEvent) => { 
+			Util.clearHighscores(Const.highscoresFile)
+			App.stage.title = "JFXGame - Main Menu"
+			App.stage.scene = new MainMenu
+		}
+	}
+
+	content = List(returnToMenu, headerText, resetButton) ++ scoreNodes.toList ++ List(nameCol_label, scoreCol_label)
+}
