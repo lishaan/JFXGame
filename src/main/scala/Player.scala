@@ -2,11 +2,11 @@ import scalafx.Includes._
 import scalafx.scene.paint.Color
 import scalafx.scene.canvas.GraphicsContext
 
-class Player (name: String) extends Drawable with Moveable {
+class Player (playerName: String) extends Drawable with Moveable {
 
     def this() = this("Player")
 
-    val _name: String = name
+    val _name: String = playerName
 	var _kills: Int = 0
 
 	val _position: Position = new Position(Const.gameWidth/2, Const.gameHeight-50)
@@ -36,7 +36,7 @@ class Player (name: String) extends Drawable with Moveable {
 		drawer.fillOval(position.x-size, position.y-size, size*2, size*2)
 	}
 
-	def getName = _name
+	def name = _name
 	def kills = _kills
 	def incrementKills = { _kills = _kills + 1 }
 }

@@ -1,19 +1,11 @@
 import scala.collection.immutable.Map
 import scala.collection.mutable.ArrayBuffer
 import scalafx.Includes._
-import scalafx.application.JFXApp
-import scalafx.application.JFXApp.PrimaryStage
-import scalafx.geometry.Bounds
-import scalafx.stage.Stage
-import scalafx.scene.layout.BorderPane
 import scalafx.scene.{Node, Scene}
-import scalafx.scene.text.Text
-import scalafx.scene.control.{Label, TextField, Dialog, MenuBar, Menu, MenuItem, SeparatorMenuItem, CheckMenuItem, RadioMenuItem, ToggleGroup, Button, TextInputDialog, Slider, ListView}
-import scalafx.scene.control.Alert.AlertType
+import scalafx.scene.control.{Label, TextField, Button, Slider}
 import scalafx.scene.input.MouseEvent
 import scalafx.scene.paint.Color
-import scalafx.event.{ActionEvent, EventHandler}
-import scalafx.scene.input.{KeyEvent, KeyCode, KeyCodeCombination, KeyCombination}
+import scalafx.event.ActionEvent
 
 object Scenes {
 	val color: Map[String, Color] = Map(
@@ -80,7 +72,23 @@ class MainMenu (_width: Double, _height: Double) extends Scene (_width, _height)
 		onMouseExited = (e: MouseEvent) => style = Scenes.buttonStyle("onExited")
 		onAction = (e: ActionEvent) => sys.exit(0)
 	}
-	content = List(playButton, highScoreButton, exitButton)
+
+	val aboutButton = new Button("?") {
+		prefWidth = 40
+		prefHeight = 40
+		layoutX = Const.gameWidth - 60
+		layoutY = Const.gameHeight - 60
+		style = Scenes.buttonStyle("Normal")
+
+		onMouseEntered = (e: MouseEvent) => style = Scenes.buttonStyle("onEntered")
+		onMouseExited = (e: MouseEvent) => style = Scenes.buttonStyle("onExited")
+		onAction = (e: ActionEvent) => {
+			style = Scenes.buttonStyle("onAction")
+			App.stage.title = "JFXGame - About"
+			App.stage.scene = new About
+		}
+	}
+	content = List(playButton, highScoreButton, exitButton, aboutButton)
 }
 
 class GameSetup (_width: Double, _height: Double) extends Scene (_width, _height) {
@@ -91,7 +99,7 @@ class GameSetup (_width: Double, _height: Double) extends Scene (_width, _height
 
 	var playerName = "Player"
 
-	val returnToMenu = new Button("«") {
+	val back = new Button("«") {
 		prefWidth = 40
 		layoutX = 20
 		layoutY = 20
@@ -240,17 +248,16 @@ class GameSetup (_width: Double, _height: Double) extends Scene (_width, _height
 			App.stage.scene = new MainMenu
 			App.stage.title = "JFXGame - Main Menu"
 
-			println(s"Game starting with playerName: $playerName")
 			do {
 				val game: Game = new Game(playerName)
-				game.showAndWait()
+				game.showAndWait
 			} while (Game.retry)
 
 			App.stage.show
 		}
 	}
 
-	content = List(headerText, playerName_label, playerName_textField, gameScaleSlider_label, gameSpeed_slider, gameScale_slider, gameSpeedSlider_label, playButton, returnToMenu, warningText, playerNameWarningText)
+	content = List(headerText, playerName_label, playerName_textField, gameScaleSlider_label, gameSpeed_slider, gameScale_slider, gameSpeedSlider_label, playButton, back, warningText, playerNameWarningText)
 }
 
 class Highscores (_width: Double, _height: Double) extends Scene (_width, _height) {
@@ -259,7 +266,7 @@ class Highscores (_width: Double, _height: Double) extends Scene (_width, _heigh
 
 	fill = Scenes.color("Background")
 
-	val returnToMenu = new Button("«") {
+	val back = new Button("«") {
 		prefWidth = 40
 		layoutX = 20
 		layoutY = 20
@@ -283,22 +290,30 @@ class Highscores (_width: Double, _height: Double) extends Scene (_width, _heigh
 	}
 	headerText.setTextFill(Color.web("#44f9ff"))
 
-	val highscores: List[Score] = Util.getHighscores(Const.highscoresFile)
+	val highscores: List[Score] = Util.getHighscores
 
 	var scoreNodes: ArrayBuffer[Node] = ArrayBuffer()
 
 	val nameCol_label = new Label("Name") {
 		prefWidth = 250
 		style = "-fx-font: 17 Regular"
-		layoutX = Const.gameWidth/2 - (250/2) - 26 + 20
+		layoutX = Const.gameWidth/2 - (250/2) - 26 - 20
 		layoutY = 180
 	}
 	nameCol_label.setTextFill(Color.web("#00BCC5"))
 
+	val killsCol_label = new Label("Kills") {
+		prefWidth = 250
+		style = "-fx-font: 17 Regular"
+		layoutX = Const.gameWidth/2 - 20
+		layoutY = 180
+	}
+	killsCol_label.setTextFill(Color.web("#00BCC5"))
+
 	val scoreCol_label = new Label("Score") {
 		prefWidth = 250
 		style = "-fx-font: 17 Regular"
-		layoutX = Const.gameWidth/2 + (250/2) - 36 - 20
+		layoutX = Const.gameWidth/2 + (250/2) - 36 + 20
 		layoutY = 180
 	}
 	scoreCol_label.setTextFill(Color.web("#00BCC5"))
@@ -310,20 +325,29 @@ class Highscores (_width: Double, _height: Double) extends Scene (_width, _heigh
 		val name_label = new Label(s"$count. ${score.name.toString}") {
 			prefWidth = 250
 			style = "-fx-font: 17 Regular"
-			layoutX = Const.gameWidth/2 - (250/2) - 26 + 20
+			layoutX = Const.gameWidth/2 - (250/2) - 26 - 20
 			layoutY = 210+gap
 		}
 		name_label.setTextFill(Color.web("#00BCC5"))
 
+		val kills_label = new Label(s"${score.kills.toString}") {
+			prefWidth = 250
+			style = "-fx-font: 17 Regular"
+			layoutX = Const.gameWidth/2 - 20
+			layoutY = 210+gap
+		}
+		kills_label.setTextFill(Color.web("#00BCC5"))
+
 		val score_label = new Label(score.score.toString) {
 			prefWidth = 250
 			style = "-fx-font: 17 Regular"
-			layoutX = Const.gameWidth/2 + (250/2) - 36 - 20
+			layoutX = Const.gameWidth/2 + (250/2) - 36 + 20
 			layoutY = 210+gap
 		}
 		score_label.setTextFill(Color.web("#00BCC5"))
 
 		scoreNodes += name_label
+		scoreNodes += kills_label
 		scoreNodes += score_label
 		gap += 30
 		count += 1
@@ -332,17 +356,105 @@ class Highscores (_width: Double, _height: Double) extends Scene (_width, _heigh
 	val resetButton = new Button("Reset") {
 		prefWidth = 150
 		layoutX = Const.gameWidth/2 - (150/2)
-		layoutY = 210+gap+18//320+pushY+6
+		layoutY = 210+gap+18
 		style = Scenes.buttonStyle("Normal")
 		onMouseEntered = (e: MouseEvent) => style = Scenes.buttonStyle("onEntered")
 		onMouseExited = (e: MouseEvent) => style = Scenes.buttonStyle("onExited")
 
 		onAction = (e: ActionEvent) => { 
-			Util.clearHighscores(Const.highscoresFile)
+			Util.clearHighscores
 			App.stage.title = "JFXGame - Main Menu"
 			App.stage.scene = new MainMenu
 		}
 	}
 
-	content = List(returnToMenu, headerText, resetButton) ++ scoreNodes.toList ++ List(nameCol_label, scoreCol_label)
+	content = List(back, headerText, resetButton) ++ scoreNodes.toList ++ List(nameCol_label, killsCol_label, scoreCol_label)
+}
+
+class About (_width: Double, _height: Double) extends Scene (_width, _height) {
+	val centerElement = new Button("Reset") {
+		prefWidth = 150
+		layoutX = Const.gameWidth/2 - (150/2)
+		layoutY = 460
+		style = Scenes.buttonStyle("Normal")
+		onMouseEntered = (e: MouseEvent) => style = Scenes.buttonStyle("onEntered")
+		onMouseExited = (e: MouseEvent) => style = Scenes.buttonStyle("onExited")
+	}
+
+	def this() = this(Const.gameWidth, Const.gameHeight)
+
+	fill = Scenes.color("Background")
+
+	val back = new Button("«") {
+		prefWidth = 40
+		layoutX = 20
+		layoutY = 20
+		style = Scenes.buttonStyle("Normal")
+		onMouseEntered = (e: MouseEvent) => style = Scenes.buttonStyle("onEntered")
+		onMouseExited = (e: MouseEvent) => style = Scenes.buttonStyle("onExited")
+
+		onAction = (e: ActionEvent) => {
+			App.stage.title = "JFXGame - Main Menu"
+			App.stage.scene = new MainMenu
+		}
+	}
+
+	val pushY = 100
+	val pullY = -40
+
+	val headerText = new Label("About") {
+		prefWidth = 250
+		style = "-fx-font: 35 Regular"
+		layoutX = Const.gameWidth/2 - (250/2) + 75
+		layoutY = 120+pullY
+	}
+	headerText.setTextFill(Color.web("#44f9ff"))
+
+	val aboutGameStr = "JFXGame is an endless 2D shooter game in which the\nplayer has to survive by killing enemies until the\nplayer is killed by an enemy.\nThe score is then determined by the time surpassed in seconds."
+
+	val aboutGame = new Label(aboutGameStr) {
+		prefWidth = 250 + (250/3)
+		style = "-fx-font: 12 Regular; -fx-text-alignment: center;"
+		layoutX = Const.gameWidth/2 - (250/2) - 26 - 20
+		layoutY = 180+pullY
+	}
+	aboutGame.setTextFill(Color.web("#00BCC5"))
+
+	val controlsText = new Label("Controls") {
+		prefWidth = 250
+		style = "-fx-font: 28 Regular"
+		layoutX = Const.gameWidth/2 - (250/2) + 70
+		layoutY = 280+pullY
+	}
+	controlsText.setTextFill(Color.web("#44f9ff"))
+
+	val controlsStr = "Arrow Keys: Move around the play area\nSpace bar or Z key: Shoot bullets\nEsc: Pause Game" 
+
+	val controls = new Label(controlsStr) {
+		prefWidth = 250 + (250/3)
+		style = "-fx-font: 12 Regular; -fx-text-alignment: center;"
+		layoutX = Const.gameWidth/2 - (250/2) + 13
+		layoutY = 320+pullY
+	}
+	controls.setTextFill(Color.web("#00BCC5"))
+
+	val developersText = new Label("Developers") {
+		prefWidth = 250
+		style = "-fx-font: 28 Regular"
+		layoutX = Const.gameWidth/2 - (250/2) + 50
+		layoutY = 420+pullY
+	}
+	developersText.setTextFill(Color.web("#44f9ff"))
+
+	val developersStr = "Lishan Abbas\nYap Jia Yung\nHans Maulloo\nDaniel Jedidiah\nDavid Thingee" 
+
+	val developers = new Label(developersStr) {
+		prefWidth = 250
+		style = "-fx-font: 12 Regular; -fx-text-alignment: center;"
+		layoutX = Const.gameWidth/2 - (250/4) + 20
+		layoutY = 460+pullY
+	}
+	developers.setTextFill(Color.web("#00BCC5"))
+
+	content = List(back, headerText, aboutGame, controlsText, controls, developersText, developers)
 }

@@ -3,7 +3,7 @@ import scala.collection.immutable.Map
 import scalafx.Includes._
 import scalafx.scene.paint.Color
 
-case class Score (name: String, score: Double)
+case class Score (name: String, kills: Int, score: Double)
 
 case class Health (max: Double) { 
 	var current: Double = max 
@@ -24,49 +24,59 @@ case class Velocity (var speed: Double) {
 	var y: Double = if (math.random*2 <= 1) speed else -speed
 }
 
-case class Spawner (val enemyName: String, val delayHead: Double, val delayTail: Double) {
+class Spawner (val enemyName: String, val delayHead: Double, val delayTail: Double) {
+	def this(enemyName: String, delay: Double) = this(enemyName, delay, delay)
+
 	val _random: scala.util.Random = new scala.util.Random
 	def random: Double = (delayHead+_random.nextInt((delayTail-delayHead).toInt+1))
 
 	var counter: Double = random
-	println(s"enemy: $enemyName will spawn in $counter seconds")
 	
 	def stopped: Boolean = (counter <= 0)
-	def reset: Unit = { 
-		counter = random 
-		println(s"enemy: $enemyName will spawn in $counter seconds")
-	}
+	def reset: Unit = { counter = random }
 	def update: Unit = { counter -= Global.delta }
 }
 
 object Util {
-	def clearHighscores(file: String): Unit = {
+	def createHighscoresFile: Unit = {
+		val source = java.nio.channels.Channels.newChannel(Game.getClass.getClassLoader.getResourceAsStream("highscores.txt"))
+		val fileOut = new java.io.File(Game.highscoresDir, "highscores.txt")
+		val dest = new java.io.FileOutputStream(fileOut)
+		
+		dest.getChannel.transferFrom(source, 0, Long.MaxValue)
+		source.close()
+		dest.close()
+	}
+
+	def clearHighscores: Unit = {
 		try {
-			val printWriter = new java.io.PrintWriter(new java.io.File(file))
-			printWriter.print("Name Score")
+			val printWriter = new java.io.PrintWriter(new java.io.File(Game.highscoresDir, "highscores.txt"))
+			printWriter.print("Name Kills Score\n")
 			printWriter.close
 		} catch {
 			case _: Throwable => println("Error: Highscore file not found (WRITE)")
 		}
 	}
 
-	def getHighscores(file: String): List[Score] = {
+	def getHighscores: List[Score] = {
 		var scores: ArrayBuffer[Score] = ArrayBuffer()
 
 		try {
-			val fScanner = new java.util.Scanner(new java.io.File(file))
+			val fScanner = new java.util.Scanner(new java.io.File(Game.highscoresDir, "highscores.txt"))
 			val firstLine = fScanner.nextLine
 			while (fScanner.hasNextLine) {
 				var name: String = ""
+				var kills: Int = 0
 				var score: Double = 0.0
 
 				while (!fScanner.hasNextDouble) {
 					name += fScanner.next
 					if (!fScanner.hasNextDouble) name += " "
 				}
+				kills = fScanner.nextInt
 				score = fScanner.nextDouble
 
-				scores += new Score(name, score)
+				scores += new Score(name, kills, score)
 			}
 			fScanner.close
 		} catch {
@@ -79,33 +89,31 @@ object Util {
 		return sorted
 	}
 
-	def appendScore(file: String, score: Score): Boolean = {
+	def appendScore(score: Score): Unit = {
 		try {
 			var lowest: Score = null
-			val sorted: List[Score] = getHighscores(file)
+			val sorted: List[Score] = getHighscores
 
 			if (sorted.isEmpty) {
-				lowest = new Score("", 0)
+				lowest = new Score("", 0, 0)
 			} else {
 				lowest = sorted(sorted.length-1)
 			}
 
 			val shouldAppend: Boolean = (sorted.length >= 10 && lowest.score > score.score)
 
-			if (shouldAppend) {
-				return false
-			} else {			
-				val printWriter = new java.io.PrintWriter(new java.io.FileOutputStream(new java.io.File(file), true))
-				printWriter.write(s"\n${score.name} ${"%.1f".format(score.score)}")
+			if (!shouldAppend) {	
+				val printWriter = new java.io.PrintWriter(new java.io.FileOutputStream(new java.io.File(Game.highscoresDir, "highscores.txt")), true)
+
+				sorted.foreach(s => printWriter.write(s"\n${s.name} ${s.kills} ${"%.1f".format(s.score)}"))
+
+				printWriter.write(s"\n${score.name} ${score.kills} ${"%.1f".format(score.score)}")
 				printWriter.close
-				return true
 			}
 
 		} catch {
 			case e: Throwable => println(s"Error: Highscore file not found (WRITE)\nException ${e.getMessage}")
 		}
-
-		return false
 	}
 }
 
@@ -116,8 +124,6 @@ object Const {
 	val gameHeight: Double = 600
 	val playAreaHeight: Double = Const.gameHeight/1.5
 
-
-	val highscoresFile: String = "res/highscores.txt"
 	var appendToHighscoresFile: Boolean = true
 
 	val SPEED: MMap[String, Double] = MMap (
@@ -140,16 +146,27 @@ object Const {
 	)
 
 	val color: Map[String, Color] = Map (
-		"Background"    -> Color.web("0c0910"),
-		"PlayArea"      -> Color.web("302D35"),
-		"TimerText"     -> Color.web("cdd1c4"),
-		"PausedText"    -> Color.web("74D3AE"),
-		"Player"        -> Color.web("6B2737"),
-		"Bullet"        -> Color.web("FE5F55"),
-		"ShooterBullet" -> Color.web("EDAFB8"),
-		"Seeker"        -> Color.web("49306B"),
-		"Bouncer"       -> Color.web("E28413"),
-		"Shooter"       -> Color.web("EDAFB8")
+		// Old Design
+		// "Background"    -> Color.web("0c0910"),
+		// "PlayArea"      -> Color.web("302D35"),
+		// "TimerText"     -> Color.web("cdd1c4"),
+		// "PausedText"    -> Color.web("74D3AE"),
+		// "Player"        -> Color.web("6B2737"),
+		// "Bullet"        -> Color.web("FE5F55"),
+		// "ShooterBullet" -> Color.web("EDAFB8"),
+		// "Seeker"        -> Color.web("49306B"),
+		// "Bouncer"       -> Color.web("E28413"),
+		// "Shooter"       -> Color.web("EDAFB8")
+		"Background"    -> Color.web("041A1A"),
+		"PlayArea"      -> Color.web("173B3B"),
+		"TimerText"     -> Color.web("FBFBFB"),
+		"PausedText"    -> Color.web("FBFBFB"),
+		"Player"        -> Color.web("FBFBFB"),
+		"Bullet"        -> Color.web("44f9ff"),
+		"ShooterBullet" -> Color.web("F7E8D0"),
+		"Seeker"        -> Color.web("6F997A"),
+		"Bouncer"       -> Color.web("79678A"),
+		"Shooter"       -> Color.web("856D48")
 		/* Link: https://coolors.co/0c0910-cdd1c4-5c80bc-6b2737-1d7874 */
 	)
 
@@ -198,10 +215,4 @@ object Global {
 	var playerPos: Position = new Position(Const.gameWidth/2, Const.gameHeight-50)
 	var delta: Double = 0
 	var seconds: Double = 0
-
-	var spawnDelays: ArrayBuffer[Spawner] = ArrayBuffer (
-		Spawner("Seeker" , 1.0, 4.0), 
-		Spawner("Bouncer", 10.0, 12.0),
-		Spawner("Shooter", 30.0, 40.0)
-	)
 }

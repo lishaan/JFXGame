@@ -3,17 +3,22 @@ import scalafx.Includes._
 import scalafx.application.JFXApp
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.stage.Stage
-import scalafx.scene.control.Button
 import scalafx.scene.Scene
-import scalafx.event.ActionEvent
 import scalafx.scene.text.Text
+import scalafx.scene.paint.Color
 import scalafx.scene.input.{KeyEvent, KeyCode}
+import scalafx.scene.canvas.{Canvas, GraphicsContext}
 import scalafx.event.ActionEvent
 import scalafx.animation.AnimationTimer
-import scalafx.scene.paint.Color
-import scalafx.scene.canvas.{Canvas, GraphicsContext}
 
 object Game {
+	private val highscoresFilePath = System.getProperty("java.io.tmpdir") + "/highscores.txt"
+	val highscoresDir = System.getProperty("java.io.tmpdir") + "/"
+
+	// Copy resources/highscores.txt to temporary directory IF it doesn't already exist there
+	val exists = (java.nio.file.Files.exists(java.nio.file.Paths.get(highscoresFilePath)))
+	if (!exists) Util.createHighscoresFile
+
 	var paused = false
 	var ended = false
 	var retry = false
@@ -32,6 +37,12 @@ class Game (val playerName: String) extends Stage {
 		Game.ended = false
 		Game.retry = false
 		Global.seconds = 0.0
+
+		val spawners: ArrayBuffer[Spawner] = ArrayBuffer (
+			new Spawner("Bouncer", 12),
+			new Spawner("Seeker" , 2.5, 5.0), 
+			new Spawner("Shooter", 30.0, 40.0)
+		)
 
 		var enemies: ArrayBuffer[Enemy] = ArrayBuffer()
 		var bullets: ArrayBuffer[Bullet] = ArrayBuffer()
@@ -74,9 +85,10 @@ class Game (val playerName: String) extends Stage {
 					indexes = ArrayBuffer()
 					for (i <- 0 until enemies.length) {
 						
-						// Player death
+						// Player death from intersecting with enemies
 						playerIsDead = intersected(enemies(i), player)
 
+						// Player death from Shooter's bullets
 						if (enemies(i).isInstanceOf[Shooter]) {
 							enemies(i).asInstanceOf[Shooter].bullets.foreach(bullet => {
 								playerIsDead = intersected(player, bullet)
@@ -84,16 +96,12 @@ class Game (val playerName: String) extends Stage {
 						}
 
 						if (playerIsDead) {
-							// Highscores
-							val playerScore = new Score(player.getName, seconds)
-							val scores = Util.getHighscores(Const.highscoresFile)
 
+							// Highscores
 							if (Const.appendToHighscoresFile) {
-								didAppend = Util.appendScore(Const.highscoresFile, playerScore)
+								Util.appendScore(new Score(player.name, player.kills, seconds))
 							}
 
-							// Print the current highscore file
-							// scores.foreach(score => println(s"Name: ${score.name} Score: ${score.score}"))
 							Game.ended = true
 							timer.stop
 						}
@@ -105,7 +113,7 @@ class Game (val playerName: String) extends Stage {
 								bullet.remove
 								
 								if (enemies(i).dead) {
-									// enemies(i).remove
+									enemies(i).remove
 									player.incrementKills
 									if (!indexes.contains(i)) indexes += i
 								}
@@ -153,7 +161,7 @@ class Game (val playerName: String) extends Stage {
 				}
 
 				// Enemies Spawn
-				Global.spawnDelays.foreach(delay => {
+				spawners.foreach(delay => {
 					delay.update
 					if (delay.stopped) {
 						enemies +:= Enemy.spawn(delay.enemyName)
@@ -208,7 +216,6 @@ class Game (val playerName: String) extends Stage {
 				// Pausing
 				case KeyCode.Escape => {
 					if (!Game.ended) Game.togglePause
-					// TODO: View the highscore file in the highscore menu 
 				}
 
 				case KeyCode.Q => { 
@@ -229,9 +236,7 @@ class Game (val playerName: String) extends Stage {
 				case _ =>
 			}
 		}
-
 		content = List(canvas, timerText)
-
 		timer.start
 	}
 
@@ -246,13 +251,10 @@ class Game (val playerName: String) extends Stage {
 		drawer.fillText("You Lose", Const.gameWidth/2, Const.gameHeight/2)
 
 		drawer.font = new scalafx.scene.text.Font(fontSize*0.50)
-		drawer.fillText("Press Q to go back to Main Menu", Const.gameWidth/2, Const.gameHeight/2 + (fontSize*2))
+		drawer.fillText("Press Q to go back to Main Menu", Const.gameWidth/2, Const.gameHeight/2 + (fontSize))
 
 		drawer.font = new scalafx.scene.text.Font(fontSize*0.50)
-		drawer.fillText("Press R to try again", Const.gameWidth/2, Const.gameHeight/2 + (fontSize*3))
-
-		drawer.font = new scalafx.scene.text.Font(fontSize*0.50)
-		drawer.fillText("Press Esc to open the highscore menu", Const.gameWidth/2, Const.gameHeight/2 + fontSize)
+		drawer.fillText("Press R to try again", Const.gameWidth/2, Const.gameHeight/2 + (fontSize*2))
 	}
 
 	def drawPausedScreen(drawer: GraphicsContext): Unit = {
