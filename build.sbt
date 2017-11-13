@@ -1,4 +1,4 @@
-name := "JFXGame"
+name := "Spherical Insanity"
 
 version := "1.0"
 

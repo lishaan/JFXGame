@@ -12,6 +12,8 @@ import scalafx.event.ActionEvent
 import scalafx.animation.AnimationTimer
 
 object Game {
+	val name: String = "Spherical Insanity"
+
 	private val highscoresFilePath = System.getProperty("java.io.tmpdir") + "/highscores.txt"
 	val highscoresDir = System.getProperty("java.io.tmpdir") + "/"
 
@@ -29,7 +31,7 @@ class Game (val playerName: String) extends Stage {
 
 	def this() = this("Player")
 
-	title = "JFXGame - Play"
+	title = s"${Game.name} - Play"
 	resizable = false
 
 	scene = new Scene(Const.gameWidth, Const.gameHeight) {

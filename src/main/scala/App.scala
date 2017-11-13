@@ -4,7 +4,7 @@ import scalafx.application.JFXApp.PrimaryStage
 
 object App extends JFXApp {
 	stage = new PrimaryStage {
-		title = "JFXGame - Main Menu"
+		title = s"${Game.name} - Main Menu"
 		scene = new MainMenu(Const.gameWidth, Const.gameHeight)
 		resizable = false
 	}

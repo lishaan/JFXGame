@@ -28,6 +28,14 @@ class MainMenu (_width: Double, _height: Double) extends Scene (_width, _height)
 
 	val centerLayoutY = Const.gameHeight/2
 	val layoutYSpacing = 60
+	
+	val headerText = new Label(s"${Game.name}") {
+		prefWidth = 350
+		style = "-fx-font: 41 Regular"
+		layoutX = Const.gameWidth/2 - (350/2) + 4
+		layoutY = 100
+	}
+	headerText.setTextFill(Color.web("#44f9ff"))
 
 	val playButton = new Button("New Game") {
 		prefWidth = 200
@@ -40,7 +48,7 @@ class MainMenu (_width: Double, _height: Double) extends Scene (_width, _height)
 		onMouseExited = (e: MouseEvent) => style = Scenes.buttonStyle("onExited")
 		onAction = (e: ActionEvent) => {
 			style = Scenes.buttonStyle("onAction")
-			App.stage.title = "JFXGame - Game Setup"
+			App.stage.title = s"${Game.name} - Game Setup"
 			App.stage.scene = new GameSetup
 		}
 	}
@@ -56,7 +64,7 @@ class MainMenu (_width: Double, _height: Double) extends Scene (_width, _height)
 		onMouseExited = (e: MouseEvent) => style = Scenes.buttonStyle("onExited")
 		onAction = (e: ActionEvent) => {
 			style = Scenes.buttonStyle("onAction")
-			App.stage.title = "JFXGame - Highscores"
+			App.stage.title = s"${Game.name} - Highscores"
 			App.stage.scene = new Highscores
 		}
 	}
@@ -84,11 +92,11 @@ class MainMenu (_width: Double, _height: Double) extends Scene (_width, _height)
 		onMouseExited = (e: MouseEvent) => style = Scenes.buttonStyle("onExited")
 		onAction = (e: ActionEvent) => {
 			style = Scenes.buttonStyle("onAction")
-			App.stage.title = "JFXGame - About"
+			App.stage.title = s"${Game.name} - About"
 			App.stage.scene = new About
 		}
 	}
-	content = List(playButton, highScoreButton, exitButton, aboutButton)
+	content = List(headerText, playButton, highScoreButton, exitButton, aboutButton)
 }
 
 class GameSetup (_width: Double, _height: Double) extends Scene (_width, _height) {
@@ -108,7 +116,7 @@ class GameSetup (_width: Double, _height: Double) extends Scene (_width, _height
 		onMouseExited = (e: MouseEvent) => style = Scenes.buttonStyle("onExited")
 
 		onAction = (e: ActionEvent) => {
-			App.stage.title = "JFXGame - Main Menu"
+			App.stage.title = s"${Game.name} - Main Menu"
 			App.stage.scene = new MainMenu
 		}
 	}
@@ -246,7 +254,7 @@ class GameSetup (_width: Double, _height: Double) extends Scene (_width, _height
 
 			App.stage.hide
 			App.stage.scene = new MainMenu
-			App.stage.title = "JFXGame - Main Menu"
+			App.stage.title = s"${Game.name} - Main Menu"
 
 			do {
 				val game: Game = new Game(playerName)
@@ -275,7 +283,7 @@ class Highscores (_width: Double, _height: Double) extends Scene (_width, _heigh
 		onMouseExited = (e: MouseEvent) => style = Scenes.buttonStyle("onExited")
 
 		onAction = (e: ActionEvent) => {
-			App.stage.title = "JFXGame - Main Menu"
+			App.stage.title = s"${Game.name} - Main Menu"
 			App.stage.scene = new MainMenu
 		}
 	}
@@ -363,7 +371,7 @@ class Highscores (_width: Double, _height: Double) extends Scene (_width, _heigh
 
 		onAction = (e: ActionEvent) => { 
 			Util.clearHighscores
-			App.stage.title = "JFXGame - Main Menu"
+			App.stage.title = s"${Game.name} - Main Menu"
 			App.stage.scene = new MainMenu
 		}
 	}
@@ -372,14 +380,6 @@ class Highscores (_width: Double, _height: Double) extends Scene (_width, _heigh
 }
 
 class About (_width: Double, _height: Double) extends Scene (_width, _height) {
-	val centerElement = new Button("Reset") {
-		prefWidth = 150
-		layoutX = Const.gameWidth/2 - (150/2)
-		layoutY = 460
-		style = Scenes.buttonStyle("Normal")
-		onMouseEntered = (e: MouseEvent) => style = Scenes.buttonStyle("onEntered")
-		onMouseExited = (e: MouseEvent) => style = Scenes.buttonStyle("onExited")
-	}
 
 	def this() = this(Const.gameWidth, Const.gameHeight)
 
@@ -394,7 +394,7 @@ class About (_width: Double, _height: Double) extends Scene (_width, _height) {
 		onMouseExited = (e: MouseEvent) => style = Scenes.buttonStyle("onExited")
 
 		onAction = (e: ActionEvent) => {
-			App.stage.title = "JFXGame - Main Menu"
+			App.stage.title = s"${Game.name} - Main Menu"
 			App.stage.scene = new MainMenu
 		}
 	}
@@ -410,12 +410,12 @@ class About (_width: Double, _height: Double) extends Scene (_width, _height) {
 	}
 	headerText.setTextFill(Color.web("#44f9ff"))
 
-	val aboutGameStr = "JFXGame is an endless 2D shooter game in which the\nplayer has to survive by killing enemies until the\nplayer is killed by an enemy.\nThe score is then determined by the time surpassed in seconds."
+	val aboutGameStr = s"${Game.name} is an endless 2D shooter game in which the\nplayer has to survive by killing enemies until the\nplayer is killed by an enemy.\nThe score is then determined by the time surpassed in seconds."
 
 	val aboutGame = new Label(aboutGameStr) {
-		prefWidth = 250 + (250/3)
+		prefWidth = 250 + (250/2)
 		style = "-fx-font: 12 Regular; -fx-text-alignment: center;"
-		layoutX = Const.gameWidth/2 - (250/2) - 26 - 20
+		layoutX = Const.gameWidth/2 - (250/2) - 50 - 10
 		layoutY = 180+pullY
 	}
 	aboutGame.setTextFill(Color.web("#00BCC5"))
