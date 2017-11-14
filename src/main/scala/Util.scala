@@ -27,7 +27,7 @@ case class Velocity (var speed: Double) {
 class Spawner (val enemyName: String, val delayHead: Double, val delayTail: Double) {
 	def this(enemyName: String, delay: Double) = this(enemyName, delay, delay)
 
-	val _random: scala.util.Random = new scala.util.Random
+	private val _random: scala.util.Random = new scala.util.Random
 	def random: Double = (delayHead+_random.nextInt((delayTail-delayHead).toInt+1))
 
 	var counter: Double = random
@@ -146,17 +146,6 @@ object Const {
 	)
 
 	val color: Map[String, Color] = Map (
-		// Old Design
-		// "Background"    -> Color.web("0c0910"),
-		// "PlayArea"      -> Color.web("302D35"),
-		// "TimerText"     -> Color.web("cdd1c4"),
-		// "PausedText"    -> Color.web("74D3AE"),
-		// "Player"        -> Color.web("6B2737"),
-		// "Bullet"        -> Color.web("FE5F55"),
-		// "ShooterBullet" -> Color.web("EDAFB8"),
-		// "Seeker"        -> Color.web("49306B"),
-		// "Bouncer"       -> Color.web("E28413"),
-		// "Shooter"       -> Color.web("EDAFB8")
 		"Background"    -> Color.web("041A1A"),
 		"PlayArea"      -> Color.web("173B3B"),
 		"TimerText"     -> Color.web("FBFBFB"),

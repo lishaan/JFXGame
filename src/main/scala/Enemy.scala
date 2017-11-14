@@ -67,7 +67,7 @@ class Bouncer extends Enemy {
 	val _color: Color = Const.color("Bouncer")
 	val _health: Health = Health(Const.health("Bouncer"))
 
-	val _velocity: Velocity = new Velocity(speed)
+	private val _velocity: Velocity = new Velocity(speed)
 
 	def velocity: Velocity = _velocity
 
@@ -110,7 +110,7 @@ class Shooter extends Enemy {
 	private var _rotationSpeed: Double = Const.speed("Shooter")*0.60
 	private var _rotationRadius: Double = size*4
 
-	val _rotationPos: Position = new Position(math.random*Const.gameWidth, math.random*Const.playAreaHeight)
+	private val _rotationPos: Position = new Position(math.random*Const.gameWidth, math.random*Const.playAreaHeight)
 	val _position: Position = new Position(
 		size*math.cos(_rotationRadius)+_rotationPos.x, 
 		size*math.sin(_rotationRadius)+_rotationPos.y
@@ -197,16 +197,16 @@ class Shooter extends Enemy {
 }
 
 trait Drawable {
-	val _color: Color
+	protected val _color: Color
 	def color: Color = _color
 
 	def draw(drawer: GraphicsContext): Unit
 }
 
 trait Moveable {
-	val _position: Position
-	var _speed: Double
-	var _size: Double
+	protected val _position: Position
+	protected var _speed: Double
+	protected var _size: Double
 	
 	def position: Position = _position
 	def speed: Double = _speed
@@ -223,7 +223,7 @@ trait Moveable {
 }
 
 trait Damageable {
-	val _health: Health
+	protected val _health: Health
 
 	def dead: Boolean = (_health.current <= 0)
 	def alive: Boolean = !dead

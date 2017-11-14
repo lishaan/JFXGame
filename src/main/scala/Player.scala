@@ -6,8 +6,8 @@ class Player (playerName: String) extends Drawable with Moveable {
 
     def this() = this("Player")
 
-    val _name: String = playerName
-	var _kills: Int = 0
+    private val _name: String = playerName
+	private var _kills: Int = 0
 
 	val _position: Position = new Position(Const.gameWidth/2, Const.gameHeight-50)
 	var _speed: Double = Const.speed("Player")

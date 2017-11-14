@@ -3,7 +3,7 @@ import scalafx.scene.paint.Color
 import scalafx.scene.canvas.GraphicsContext
 
 class Bullet (playerPos: Position) extends Drawable with Moveable {
-	val _damage: Double = 5
+	private val _damage: Double = 5
 
 	val _position: Position = new Position(playerPos.x, playerPos.y - (Const.size("Player")/2))
 	var _speed: Double = Const.speed("Bullet")
