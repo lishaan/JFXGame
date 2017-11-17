@@ -268,6 +268,86 @@ class GameSetup (_width: Double, _height: Double) extends Scene (_width, _height
 	content = List(headerText, playerName_label, playerName_textField, gameScaleSlider_label, gameSpeed_slider, gameScale_slider, gameSpeedSlider_label, playButton, back, warningText, playerNameWarningText)
 }
 
+object Highscores {
+	def createFile: Unit = {
+		val source = java.nio.channels.Channels.newChannel(Game.getClass.getClassLoader.getResourceAsStream("highscores.txt"))
+		val fileOut = new java.io.File(Game.highscoresDir, "highscores.txt")
+		val dest = new java.io.FileOutputStream(fileOut)
+		
+		dest.getChannel.transferFrom(source, 0, Long.MaxValue)
+		source.close()
+		dest.close()
+	}
+
+	def clear: Unit = {
+		try {
+			val printWriter = new java.io.PrintWriter(new java.io.File(Game.highscoresDir, "highscores.txt"))
+			printWriter.print("Name Kills Score\n")
+			printWriter.close
+		} catch {
+			case _: Throwable => println("Error: Highscore file not found (WRITE)")
+		}
+	}
+
+	def toList: List[Score] = {
+		var scores: ArrayBuffer[Score] = ArrayBuffer()
+
+		try {
+			val fScanner = new java.util.Scanner(new java.io.File(Game.highscoresDir, "highscores.txt"))
+			val firstLine = fScanner.nextLine
+			while (fScanner.hasNextLine) {
+				var name: String = ""
+				var kills: Int = 0
+				var score: Double = 0.0
+
+				while (!fScanner.hasNextDouble) {
+					name += fScanner.next
+					if (!fScanner.hasNextDouble) name += " "
+				}
+				kills = fScanner.nextInt
+				score = fScanner.nextDouble
+
+				scores += new Score(name, kills, score)
+			}
+			fScanner.close
+		} catch {
+			case _: Throwable => println("Error: Highscore file not found (READ)")
+		}
+
+		val unsorted = scores.toList
+		val sorted = unsorted.sortBy(-_.score).take(10)
+
+		return sorted
+	}
+
+	def append(score: Score): Unit = {
+		try {
+			var lowest: Score = null
+			val sorted: List[Score] = Highscores.toList
+
+			if (sorted.isEmpty) {
+				lowest = new Score("", 0, 0)
+			} else {
+				lowest = sorted(sorted.length-1)
+			}
+
+			val shouldAppend: Boolean = (sorted.length >= 10 && lowest.score > score.score)
+
+			if (!shouldAppend) {	
+				val printWriter = new java.io.PrintWriter(new java.io.FileOutputStream(new java.io.File(Game.highscoresDir, "highscores.txt")), true)
+
+				sorted.foreach(s => printWriter.write(s"\n${s.name} ${s.kills} ${"%.1f".format(s.score)}"))
+
+				printWriter.write(s"\n${score.name} ${score.kills} ${"%.1f".format(score.score)}")
+				printWriter.close
+			}
+
+		} catch {
+			case e: Throwable => println(s"Error: Highscore file not found (WRITE)\nException ${e.getMessage}")
+		}
+	}
+}
+
 class Highscores (_width: Double, _height: Double) extends Scene (_width, _height) {
 
 	def this() = this(Const.gameWidth, Const.gameHeight)
@@ -298,7 +378,7 @@ class Highscores (_width: Double, _height: Double) extends Scene (_width, _heigh
 	}
 	headerText.setTextFill(Color.web("#44f9ff"))
 
-	val highscores: List[Score] = Util.getHighscores
+	val highscores: List[Score] = Highscores.toList
 
 	var scoreNodes: ArrayBuffer[Node] = ArrayBuffer()
 
@@ -370,7 +450,7 @@ class Highscores (_width: Double, _height: Double) extends Scene (_width, _heigh
 		onMouseExited = (e: MouseEvent) => style = Scenes.buttonStyle("onExited")
 
 		onAction = (e: ActionEvent) => { 
-			Util.clearHighscores
+			Highscores.clear
 			App.stage.title = s"${Game.name} - Main Menu"
 			App.stage.scene = new MainMenu
 		}

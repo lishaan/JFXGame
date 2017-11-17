@@ -2,7 +2,7 @@ import scalafx.Includes._
 import scalafx.scene.paint.Color
 import scalafx.scene.canvas.GraphicsContext
 
-class Player (playerName: String) extends Drawable with Moveable {
+class Player (playerName: String) extends Drawable with Moveable with Shootable {
 
     def this() = this("Player")
 
@@ -13,6 +13,10 @@ class Player (playerName: String) extends Drawable with Moveable {
 	var _speed: Double = Const.speed("Player")
 	var _size: Double = Const.size("Player")
 	val _color: Color = Const.color("Player")
+
+	def shootBullet: Unit = {
+		_bullets +:= new Bullet(this.position)
+	}
 
 	def move = println("Error: Parameter (direction: String) required")
 	def move(direction: String): Unit = {

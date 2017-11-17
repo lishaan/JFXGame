@@ -37,84 +37,10 @@ class Spawner (val enemyName: String, val delayHead: Double, val delayTail: Doub
 	def update: Unit = { counter -= Global.delta }
 }
 
-object Util {
-	def createHighscoresFile: Unit = {
-		val source = java.nio.channels.Channels.newChannel(Game.getClass.getClassLoader.getResourceAsStream("highscores.txt"))
-		val fileOut = new java.io.File(Game.highscoresDir, "highscores.txt")
-		val dest = new java.io.FileOutputStream(fileOut)
-		
-		dest.getChannel.transferFrom(source, 0, Long.MaxValue)
-		source.close()
-		dest.close()
-	}
-
-	def clearHighscores: Unit = {
-		try {
-			val printWriter = new java.io.PrintWriter(new java.io.File(Game.highscoresDir, "highscores.txt"))
-			printWriter.print("Name Kills Score\n")
-			printWriter.close
-		} catch {
-			case _: Throwable => println("Error: Highscore file not found (WRITE)")
-		}
-	}
-
-	def getHighscores: List[Score] = {
-		var scores: ArrayBuffer[Score] = ArrayBuffer()
-
-		try {
-			val fScanner = new java.util.Scanner(new java.io.File(Game.highscoresDir, "highscores.txt"))
-			val firstLine = fScanner.nextLine
-			while (fScanner.hasNextLine) {
-				var name: String = ""
-				var kills: Int = 0
-				var score: Double = 0.0
-
-				while (!fScanner.hasNextDouble) {
-					name += fScanner.next
-					if (!fScanner.hasNextDouble) name += " "
-				}
-				kills = fScanner.nextInt
-				score = fScanner.nextDouble
-
-				scores += new Score(name, kills, score)
-			}
-			fScanner.close
-		} catch {
-			case _: Throwable => println("Error: Highscore file not found (READ)")
-		}
-
-		val unsorted = scores.toList
-		val sorted = unsorted.sortBy(-_.score).take(10)
-
-		return sorted
-	}
-
-	def appendScore(score: Score): Unit = {
-		try {
-			var lowest: Score = null
-			val sorted: List[Score] = getHighscores
-
-			if (sorted.isEmpty) {
-				lowest = new Score("", 0, 0)
-			} else {
-				lowest = sorted(sorted.length-1)
-			}
-
-			val shouldAppend: Boolean = (sorted.length >= 10 && lowest.score > score.score)
-
-			if (!shouldAppend) {	
-				val printWriter = new java.io.PrintWriter(new java.io.FileOutputStream(new java.io.File(Game.highscoresDir, "highscores.txt")), true)
-
-				sorted.foreach(s => printWriter.write(s"\n${s.name} ${s.kills} ${"%.1f".format(s.score)}"))
-
-				printWriter.write(s"\n${score.name} ${score.kills} ${"%.1f".format(score.score)}")
-				printWriter.close
-			}
-
-		} catch {
-			case e: Throwable => println(s"Error: Highscore file not found (WRITE)\nException ${e.getMessage}")
-		}
-	}
+object Global {
+	var playerPos: Position = new Position(Const.gameWidth/2, Const.gameHeight-50)
+	var delta: Double = 0
+	var seconds: Double = 0
 }
 
 object Const {
@@ -198,10 +124,4 @@ object Const {
 		Const.size("Shooter") = Const.gameScale*SIZE("Shooter")
 		Const.size("ShooterBullet" ) = Const.gameScale*SIZE("ShooterBullet")
 	}
-}
-
-object Global {
-	var playerPos: Position = new Position(Const.gameWidth/2, Const.gameHeight-50)
-	var delta: Double = 0
-	var seconds: Double = 0
 }

@@ -19,7 +19,7 @@ object Game {
 
 	// Copy resources/highscores.txt to temporary directory IF it doesn't already exist there
 	val exists = (java.nio.file.Files.exists(java.nio.file.Paths.get(highscoresFilePath)))
-	if (!exists) Util.createHighscoresFile
+	if (!exists) Highscores.createFile
 
 	var paused = false
 	var ended = false
@@ -42,12 +42,11 @@ class Game (val playerName: String) extends Stage {
 
 		val spawners: ArrayBuffer[Spawner] = ArrayBuffer (
 			new Spawner("Bouncer", 12),
-			new Spawner("Seeker" , 2.5, 5.0), 
+			new Spawner("Seeker" , 2.5, 5.0),
 			new Spawner("Shooter", 30.0, 40.0)
 		)
 
 		var enemies: ArrayBuffer[Enemy] = ArrayBuffer()
-		var bullets: ArrayBuffer[Bullet] = ArrayBuffer()
 		
 		val player = new Player(playerName)
 		var timerText = new Text(10, 20, "0.0") {
@@ -58,8 +57,7 @@ class Game (val playerName: String) extends Stage {
 			"Up"     -> false,
 			"Right"  -> false,
 			"Down"   -> false,
-			"Left"   -> false,
-			"Escape" -> false
+			"Left"   -> false
 		)
 
 		var lastTime: Long = -3
@@ -77,90 +75,9 @@ class Game (val playerName: String) extends Stage {
 				val delta = (timeNow-lastTime)/1e9
 				
 				Const.updateConsts
+				player.updateBullets
 				Global.playerPos = player.position
 				Global.delta = delta
-
-				var indexes: ArrayBuffer[Int] = ArrayBuffer()
-
-				// Enemies
-				if (!enemies.isEmpty) {
-					indexes = ArrayBuffer()
-					for (i <- 0 until enemies.length) {
-						
-						// Player death from intersecting with enemies
-						playerIsDead = intersected(enemies(i), player)
-
-						// Player death from Shooter's bullets
-						if (enemies(i).isInstanceOf[Shooter]) {
-							enemies(i).asInstanceOf[Shooter].bullets.foreach(bullet => {
-								playerIsDead = intersected(player, bullet)
-							})
-						}
-
-						if (playerIsDead) {
-
-							// Highscores
-							if (Const.appendToHighscoresFile) {
-								Util.appendScore(new Score(player.name, player.kills, seconds))
-							}
-
-							Game.ended = true
-							timer.stop
-						}
-
-						// Enemies & Bullets
-						bullets.foreach(bullet => {
-							if (intersected(bullet, enemies(i))) {
-								enemies(i).inflictDamage(bullet.damage)
-								bullet.remove
-								
-								if (enemies(i).dead) {
-									enemies(i).remove
-									player.incrementKills
-									if (!indexes.contains(i)) indexes += i
-								}
-							}
-						})
-
-						// Enemies move
-						enemies(i).move
-					}
-				}
-
-				// Enemies Buffer
-				indexes.foreach(index => enemies.remove(index))
-
-				// Bullets
-				if (!bullets.isEmpty) {
-					indexes = ArrayBuffer()
-
-					// Bullets move
-					for (i <- 0 until bullets.length) {
-						bullets(i).move
-						if (bullets(i).y < (-bullets(i).size)) {
-							if (!indexes.contains(i)) indexes += i
-						}
-					}
-
-					// Bullets Buffer
-					indexes.foreach(index => bullets.remove(index))
-				}
-
-				// Player move
-				if (keys("Up"   )) player.move("Up"   )
-				if (keys("Right")) player.move("Right")
-				if (keys("Down" )) player.move("Down" )
-				if (keys("Left" )) player.move("Left" )
-
-				// Game speed configuration
-				if (!Const.appendToHighscoresFile) {					
-					if (seconds >= 20 ) Const.gameSpeed = 1.1
-					if (seconds >= 40 ) Const.gameSpeed = 1.2
-					if (seconds >= 80 ) Const.gameSpeed = 1.3
-					if (seconds >= 100) Const.gameSpeed = 1.4
-					if (seconds >= 120) Const.gameSpeed = 1.5
-					if (seconds >= 140) Const.gameSpeed = 1.6
-				}
 
 				// Enemies Spawn
 				spawners.foreach(delay => {
@@ -177,9 +94,78 @@ class Game (val playerName: String) extends Stage {
 				drawer.fill = Const.color("PlayArea")
 				drawer.fillRect(0, Const.playAreaHeight, Const.gameWidth, Const.playAreaHeight)
 
-				bullets.foreach(b => b.draw(drawer))
+				player.bullets.foreach(b => b.draw(drawer))
 				enemies.foreach(e => e.draw(drawer))
 				player.draw(drawer)
+
+				// Enemies
+				if (!enemies.isEmpty) {
+					var indexes: ArrayBuffer[Int] = ArrayBuffer()
+					for (i <- 0 until enemies.length) {
+						
+						// Player death from intersecting with enemies
+						playerIsDead = intersected(enemies(i), player)
+
+						// Player death from Shooter's bullets
+						if (enemies(i).isInstanceOf[Shooter]) {
+							enemies(i).asInstanceOf[Shooter].shootBullet
+							enemies(i).asInstanceOf[Shooter].updateBullets
+							enemies(i).asInstanceOf[Shooter].bullets.foreach(bullet => {
+								playerIsDead = intersected(player, bullet)
+							})
+						}
+
+						// Enemy death from Player's bullets
+						player.bullets.foreach(bullet => {
+							if (intersected(bullet, enemies(i))) {
+								enemies(i).inflictDamage(bullet.damage)
+								bullet.remove
+								
+								if (enemies(i).dead) {
+									enemies(i).remove
+									player.incrementKills
+									if (!indexes.contains(i)) indexes += i
+								}
+							}
+						})
+
+						// Enemies move
+						enemies(i).move
+					}
+					indexes.foreach(index => enemies.remove(index))
+				}
+				
+				// Player move
+				if (keys("Up"   )) player.move("Up"   )
+				if (keys("Right")) player.move("Right")
+				if (keys("Down" )) player.move("Down" )
+				if (keys("Left" )) player.move("Left" )
+
+				// Player death
+				if (playerIsDead) {
+
+					// Highscores
+					if (Const.appendToHighscoresFile) {
+						Highscores.append(new Score(player.name, player.kills, seconds))
+					}
+
+					Game.ended = true
+					timer.stop
+				}
+
+				// Game speed configuration
+				if (!Const.appendToHighscoresFile) {					
+					if (seconds >= 20 ) Const.gameSpeed = 1.1
+					if (seconds >= 40 ) Const.gameSpeed = 1.2
+					if (seconds >= 70 ) Const.gameSpeed = 1.3
+					if (seconds >= 110) Const.gameSpeed = 1.4
+					if (seconds >= 160) Const.gameSpeed = 1.5
+					if (seconds >= 220) Const.gameSpeed = 1.6
+					if (seconds >= 290) Const.gameSpeed = 1.7
+					if (seconds >= 360) Const.gameSpeed = 1.8
+					if (seconds >= 450) Const.gameSpeed = 1.9
+					if (seconds >= 550) Const.gameSpeed = 2.0
+				}
 
 				seconds += delta
 				Global.seconds = seconds
@@ -212,8 +198,8 @@ class Game (val playerName: String) extends Stage {
 				case KeyCode.Left => keys("Left") = false
 
 				// Actions
-				case KeyCode.Space => bullets +:= new Bullet(player.position)
-				case KeyCode.Z => bullets +:= new Bullet(player.position)
+				case KeyCode.Space => player.shootBullet
+				case KeyCode.Z => player.shootBullet
 
 				// Pausing
 				case KeyCode.Escape => {

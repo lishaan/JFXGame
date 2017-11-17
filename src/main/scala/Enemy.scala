@@ -105,7 +105,7 @@ class Bouncer extends Enemy {
 	}
 }
 
-class Shooter extends Enemy {
+class Shooter extends Enemy with Shootable {
 	private var _rotation: Double = 0
 	private var _rotationSpeed: Double = Const.speed("Shooter")*0.60
 	private var _rotationRadius: Double = size*4
@@ -121,10 +121,14 @@ class Shooter extends Enemy {
 	val _color: Color = Const.color("Shooter")
 	val _health: Health = Health(Const.health("Shooter"))
 
-	private var _bullets: ArrayBuffer[ShooterBullet] = ArrayBuffer()
 	private var dir: Int = 0
 
-	def bullets: ArrayBuffer[ShooterBullet] = _bullets
+	def shootBullet: Unit = {
+		if (Global.seconds.toInt % 2 == 0 && bullets.length < 1) {
+			val currentPlayerPos = Global.playerPos
+			_bullets +:= new ShooterBullet(this.position)
+		}
+	}
 
 	def move = {
 		speed = Const.speed("Shooter")
@@ -150,28 +154,6 @@ class Shooter extends Enemy {
 		} else if (_rotationPos.x < size) {
 			this.dir = 0
 		}
-
-		// Spawn bullet
-		if (Global.seconds.toInt % 2 == 0 && bullets.length < 1) {
-			val currentPlayerPos = Global.playerPos
-			_bullets +:= new ShooterBullet(new Position(this.position.x, this.position.y+size))
-		}
-
-		// Bullets
-		if (!bullets.isEmpty) {
-			var indexes: ArrayBuffer[Int] = ArrayBuffer()
-
-			// Bullets move
-			for (i <- 0 until bullets.length) {
-				bullets(i).move
-				if (bullets(i).y > Const.gameHeight-bullets(i).size) {
-					if (!indexes.contains(i)) indexes += i
-				}
-			}
-
-			// Bullets Buffer
-			indexes.foreach(index => bullets.remove(index))
-		}
 	}
 
 	def draw(drawer: GraphicsContext): Unit = {
@@ -194,6 +176,31 @@ class Shooter extends Enemy {
 		// Bullets
 		bullets.foreach(b => b.draw(drawer))
 	}
+}
+
+trait Shootable {
+	protected var _bullets: ArrayBuffer[Ammo] = ArrayBuffer()
+	def bullets: ArrayBuffer[Ammo] = _bullets
+
+	def updateBullets: Unit = {
+		// Bullets
+		if (!bullets.isEmpty) {
+			var indexes: ArrayBuffer[Int] = ArrayBuffer()
+
+			// Bullets move
+			for (i <- 0 until bullets.length) {
+				bullets(i).move
+				if (bullets(i).y > Const.gameHeight-bullets(i).size) {
+					if (!indexes.contains(i)) indexes += i
+				}
+			}
+
+			// Bullets Buffer
+			indexes.foreach(index => bullets.remove(index))
+		}
+	}
+
+	def shootBullet: Unit
 }
 
 trait Drawable {
