@@ -250,7 +250,8 @@ class GameSetup (_width: Double, _height: Double) extends Scene (_width, _height
 			}
 
 			Const.gameSpeed = gameSpeed_slider.getValue()
-			Const.gameScale = gameScale_slider.getValue()
+			Const.gameScale = gameScale_slider.getValue() + 0.2
+			Const.updateConsts
 
 			App.stage.hide
 			App.stage.scene = new MainMenu
@@ -320,7 +321,8 @@ object Highscores {
 		return sorted
 	}
 
-	def append(score: Score): Unit = {
+	def append(score: Score): Boolean = {
+		var shouldNotAppend: Boolean = false
 		try {
 			var lowest: Score = null
 			val sorted: List[Score] = Highscores.toList
@@ -331,11 +333,13 @@ object Highscores {
 				lowest = sorted(sorted.length-1)
 			}
 
-			val shouldAppend: Boolean = (sorted.length >= 10 && lowest.score > score.score)
+			shouldNotAppend = (sorted.length >= 10 && lowest.score > score.score)
 
-			if (!shouldAppend) {	
+			if (!shouldNotAppend) {	
 				val printWriter = new java.io.PrintWriter(new java.io.FileOutputStream(new java.io.File(Game.highscoresDir, "highscores.txt")), true)
 
+				printWriter.print("Name Kills Score")
+				
 				sorted.foreach(s => printWriter.write(s"\n${s.name} ${s.kills} ${"%.1f".format(s.score)}"))
 
 				printWriter.write(s"\n${score.name} ${score.kills} ${"%.1f".format(score.score)}")
@@ -345,6 +349,8 @@ object Highscores {
 		} catch {
 			case e: Throwable => println(s"Error: Highscore file not found (WRITE)\nException ${e.getMessage}")
 		}
+
+		return !shouldNotAppend
 	}
 }
 

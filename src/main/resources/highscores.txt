@@ -1,6 +1,6 @@
 Name Kills Score
-David 23 62.8
-Jia Yung 21 55.9
-Lishan 16 48.5
-Daniel 14 43.4
-Hans 12 37.8
+David 208 541.2
+Lishan 205 517.0
+Jia Yung 79 220.5
+Hans 26 79.1
+Daniel 11 45.1

@@ -61,7 +61,7 @@ class Seeker extends Enemy {
 }
 
 class Bouncer extends Enemy {
-	val _position: Position = new Position(math.random*Const.gameWidth - 50, size + 50)
+	val _position: Position = new Position(Const.gameWidth/2, Const.playAreaHeight/2)
 	var _speed: Double = Const.speed("Bouncer")
 	var _size: Double = Const.size("Bouncer")
 	val _color: Color = Const.color("Bouncer")
@@ -110,7 +110,7 @@ class Shooter extends Enemy with Shootable {
 	private var _rotationSpeed: Double = Const.speed("Shooter")*0.60
 	private var _rotationRadius: Double = size*4
 
-	private val _rotationPos: Position = new Position(math.random*Const.gameWidth, math.random*Const.playAreaHeight)
+	private val _rotationPos: Position = new Position(math.random*Const.gameWidth, Const.playAreaHeight/2)
 	val _position: Position = new Position(
 		size*math.cos(_rotationRadius)+_rotationPos.x, 
 		size*math.sin(_rotationRadius)+_rotationPos.y
@@ -190,7 +190,7 @@ trait Shootable {
 			// Bullets move
 			for (i <- 0 until bullets.length) {
 				bullets(i).move
-				if (bullets(i).y > Const.gameHeight-bullets(i).size) {
+				if (bullets(i).y > Const.gameHeight-bullets(i).size || bullets(i).y < bullets(i).size) {
 					if (!indexes.contains(i)) indexes += i
 				}
 			}

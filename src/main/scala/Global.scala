@@ -45,7 +45,7 @@ object Global {
 
 object Const {
 	var gameScale: Double = 1.2
-	var gameSpeed: Double = 1.0 
+	var gameSpeed: Double = 1.0
 	val gameWidth: Double = 600
 	val gameHeight: Double = 600
 	val playAreaHeight: Double = Const.gameHeight/1.5
@@ -53,22 +53,22 @@ object Const {
 	var appendToHighscoresFile: Boolean = true
 
 	val SPEED: MMap[String, Double] = MMap (
-		"Player"         -> Const.gameSpeed * 170,
-		"Bullet"         -> Const.gameSpeed * 400,
-		"Seeker"         -> Const.gameSpeed * 80,
-		"Bouncer"        -> Const.gameSpeed * 120,
-		"Shooter"        -> Const.gameSpeed * 70,
-		"ShooterBullet"  -> Const.gameSpeed * 300
+		"Player"         -> 170,
+		"Bullet"         -> 400,
+		"Seeker"         -> 80,
+		"Bouncer"        -> 120,
+		"Shooter"        -> 70,
+		"ShooterBullet"  -> 300
 	)
 
 
 	val SIZE: MMap[String, Double] = MMap (
-		"Player"         -> Const.gameScale * 20,
-		"Bullet"         -> Const.gameScale * 4,
-		"Seeker"         -> Const.gameScale * 10,
-		"Bouncer"        -> Const.gameScale * 17,
-		"Shooter"        -> Const.gameScale * 30,
-		"ShooterBullet"  -> Const.gameScale * 6
+		"Player"         -> 20,
+		"Bullet"         -> 4,
+		"Seeker"         -> 10,
+		"Bouncer"        -> 17,
+		"Shooter"        -> 30,
+		"ShooterBullet"  -> 6
 	)
 
 	val color: Map[String, Color] = Map (
