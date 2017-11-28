@@ -2,8 +2,13 @@ import scalafx.Includes._
 import scalafx.scene.paint.Color
 import scalafx.scene.canvas.GraphicsContext
 
+/** A Player object controlled by the user that inherits the traits: [[Drawable]], [[Moveable]] and [[Shootable]].
+ *
+ *  @constructor create a new instance of a Player object by the given player name
+ *  @param playerName the name of the Player
+ */
 class Player (playerName: String) extends Drawable with Moveable with Shootable {
-
+	/** create a new instance of a Player object with the name "Player" */
     def this() = this("Player")
 
     private val _name: String = playerName
@@ -19,6 +24,10 @@ class Player (playerName: String) extends Drawable with Moveable with Shootable 
 	}
 
 	def move = println("Error: Parameter (direction: String) required")
+
+	/** Moves the player at the given direction 
+     *  direction the direction as a String
+	 */
 	def move(direction: String): Unit = {
 		speed = Const.speed("Player")
 		size = Const.size("Player")
@@ -42,5 +51,7 @@ class Player (playerName: String) extends Drawable with Moveable with Shootable 
 
 	def name = _name
 	def kills = _kills
+
+	/** Increments the player's kills. */
 	def incrementKills = { _kills = _kills + 1 }
 }

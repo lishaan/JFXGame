@@ -7,11 +7,14 @@ import scalafx.scene.input.MouseEvent
 import scalafx.scene.paint.Color
 import scalafx.event.ActionEvent
 
+/** A static Scenes object that stores all the consistent values for the scenes in the Main Menu. */
 object Scenes {
+	// The colors of the components in the Main Menu
 	val color: Map[String, Color] = Map(
 		"Background" -> Color.web("000D0D")
 	)
 
+	// The fx css stylings of the buttons in the Main Menu
 	val buttonStyle: Map[String, String] = Map(
 		"Normal" -> "-fx-font-weight: bold; -fx-background-color: #004E52; -fx-background-radius: 50; -fx-font-size: 24; -fx-text-fill: #44f9ff;",
 		"onEntered" -> "-fx-font-weight: bold; -fx-background-color: #003133; -fx-background-radius: 50; -fx-font-size: 24; -fx-text-fill: #44f9ff;",
@@ -20,6 +23,12 @@ object Scenes {
 	)
 }
 
+/** The main menu scene of the game.
+ *
+ *  @constructor create a new instance of a MainMenu scene
+ *  @param width the width of the scene
+ *  @param height the height of the scene
+ */
 class MainMenu (_width: Double, _height: Double) extends Scene (_width, _height) {
 
 	def this() = this(Const.gameWidth, Const.gameHeight)
@@ -99,6 +108,12 @@ class MainMenu (_width: Double, _height: Double) extends Scene (_width, _height)
 	content = List(headerText, playButton, highScoreButton, exitButton, aboutButton)
 }
 
+/** The game setup scene of the game.
+ *
+ *  @constructor create a new instance of a GameSetup scene
+ *  @param width the width of the scene
+ *  @param height the height of the scene
+ */
 class GameSetup (_width: Double, _height: Double) extends Scene (_width, _height) {
 
 	def this() = this(Const.gameWidth, Const.gameHeight)
@@ -269,7 +284,10 @@ class GameSetup (_width: Double, _height: Double) extends Scene (_width, _height
 	content = List(headerText, playerName_label, playerName_textField, gameScaleSlider_label, gameSpeed_slider, gameScale_slider, gameSpeedSlider_label, playButton, back, warningText, playerNameWarningText)
 }
 
+/** A static Highscores object that stores all the methods that is needed to manipulate the Highscores of the game. */
 object Highscores {
+
+	/** Creates the "highscores.txt" resource file at the System's temporary location. */
 	def createFile: Unit = {
 		val source = java.nio.channels.Channels.newChannel(Game.getClass.getClassLoader.getResourceAsStream("highscores.txt"))
 		val fileOut = new java.io.File(Game.highscoresDir, "highscores.txt")
@@ -280,6 +298,7 @@ object Highscores {
 		dest.close()
 	}
 
+	/** Clears the highscores file. */
 	def clear: Unit = {
 		try {
 			val printWriter = new java.io.PrintWriter(new java.io.File(Game.highscoresDir, "highscores.txt"))
@@ -290,6 +309,10 @@ object Highscores {
 		}
 	}
 
+	/** Returns the top ten sorted highscores stored in a List.
+	 *
+	 * @return the highscores as a List of type Score
+	 */
 	def toList: List[Score] = {
 		var scores: ArrayBuffer[Score] = ArrayBuffer()
 
@@ -321,6 +344,11 @@ object Highscores {
 		return sorted
 	}
 
+	/** Appends a score to the highscore object.
+	 *
+	 * @param score the score as an instance of Score
+	 * @return a boolean value that determines whether the score has been appended or not
+	 */
 	def append(score: Score): Boolean = {
 		var shouldNotAppend: Boolean = false
 		try {
@@ -333,8 +361,10 @@ object Highscores {
 				lowest = sorted(sorted.length-1)
 			}
 
+			// Should not append if the score is lower than the 10th lowest score in the highscores file
 			shouldNotAppend = (sorted.length >= 10 && lowest.score > score.score)
 
+			// Append the score
 			if (!shouldNotAppend) {	
 				val printWriter = new java.io.PrintWriter(new java.io.FileOutputStream(new java.io.File(Game.highscoresDir, "highscores.txt")), true)
 
@@ -354,6 +384,12 @@ object Highscores {
 	}
 }
 
+/** The highcores scene of the game.
+ *
+ *  @constructor create a new instance of a Highscores scene
+ *  @param width the width of the scene
+ *  @param height the height of the scene
+ */
 class Highscores (_width: Double, _height: Double) extends Scene (_width, _height) {
 
 	def this() = this(Const.gameWidth, Const.gameHeight)
@@ -465,6 +501,12 @@ class Highscores (_width: Double, _height: Double) extends Scene (_width, _heigh
 	content = List(back, headerText, resetButton) ++ scoreNodes.toList ++ List(nameCol_label, killsCol_label, scoreCol_label)
 }
 
+/** The about scene of the game.
+ *
+ *  @constructor create a new instance of a About scene
+ *  @param width the width of the scene
+ *  @param height the height of the scene
+ */
 class About (_width: Double, _height: Double) extends Scene (_width, _height) {
 
 	def this() = this(Const.gameWidth, Const.gameHeight)

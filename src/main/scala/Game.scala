@@ -11,22 +11,31 @@ import scalafx.scene.canvas.{Canvas, GraphicsContext}
 import scalafx.event.ActionEvent
 import scalafx.animation.AnimationTimer
 
+/** The static Game object that manages all the games played. */
 object Game {
+	/** Name of the game */
 	val name: String = "Spherical Insanity"
 
+	/** The path of the system's temporary directory to store the highscores.txt file */
 	private val highscoresFilePath = System.getProperty("java.io.tmpdir") + "/highscores.txt"
 	val highscoresDir = System.getProperty("java.io.tmpdir") + "/"
 
 	// Copy resources/highscores.txt to temporary directory IF it doesn't already exist there
-	val exists = (java.nio.file.Files.exists(java.nio.file.Paths.get(highscoresFilePath)))
+	private val exists = (java.nio.file.Files.exists(java.nio.file.Paths.get(highscoresFilePath)))
 	if (!exists) Highscores.createFile
 
 	var paused = false
 	var ended = false
 	var retry = false
-	def togglePause = { Game.paused = !Game.paused }
+
+	/** Toggles the pausing of the game. */
+	def togglePause: Unit = { Game.paused = !Game.paused }
 }
 
+/** A stage where a game is played on the scene until the game ends.
+ *
+ *  @param playerName the name of the current game's player
+ */
 class Game (val playerName: String) extends Stage {
 
 	def this() = this("Player")
@@ -38,7 +47,6 @@ class Game (val playerName: String) extends Stage {
 		Game.paused = false
 		Game.ended = false
 		Game.retry = false
-		Global.seconds = 0.0
 
 		val spawners: ArrayBuffer[Spawner] = ArrayBuffer (
 			new Spawner("Bouncer", 12),
@@ -62,6 +70,7 @@ class Game (val playerName: String) extends Stage {
 
 		var lastTime: Long = -3
 		var seconds: Double = 0.0
+		Global.seconds = seconds
 
 		// Canvas
 		val canvas: Canvas = new Canvas(Const.gameWidth, Const.gameHeight);
@@ -72,6 +81,7 @@ class Game (val playerName: String) extends Stage {
 
 		val timer: AnimationTimer = AnimationTimer(timeNow => {
 			if (lastTime > 0 && !Game.paused) {
+				// Delta time
 				val delta = (timeNow-lastTime)/1e9
 				
 				player.updateBullets
@@ -177,6 +187,7 @@ class Game (val playerName: String) extends Stage {
 			Const.updateConsts
 		})
 
+		// Key pressed events
 		onKeyPressed = (e: KeyEvent) => {
 			e.code match {
 				// Movement Controls
@@ -189,6 +200,7 @@ class Game (val playerName: String) extends Stage {
 			}
 		}
 
+		// Key released events
 		onKeyReleased = (e: KeyEvent) => {
 			e.code match {
 				// Movement Controls
@@ -232,8 +244,14 @@ class Game (val playerName: String) extends Stage {
 		timer.start
 	}
 
+	/** Closes/ends the current game by closing the stage. */
 	def closeGame = this.close
 
+	/** Draws the menu that is displayed when a game ends.
+	 *
+	 *  @param drawer the graphicsContext of where the menu is drawn
+	 *  @param scoreAppended a boolean value that determines whether the score appends to the highscore
+	 */
 	def drawEndGameScreen(drawer: GraphicsContext, scoreAppended: Boolean): Unit = {
 		val fontSize = 20*Const.gameScale
 		drawer.fill = Const.color("PausedText")
@@ -252,6 +270,10 @@ class Game (val playerName: String) extends Stage {
 		drawer.fillText(if (scoreAppended) "Your score has been appended to the highscore" else "You score did not append to the highscore", Const.gameWidth/2, Const.playAreaHeight/2 + (fontSize*3))			
 	}
 
+	/** Draws the menu that is displayed when a game pauses.
+	 *
+	 *  @param drawer the graphicsContext of where the menu is drawn
+	 */
 	def drawPausedScreen(drawer: GraphicsContext): Unit = {
 		val fontSize = 20*Const.gameScale
 		drawer.fill = Const.color("PausedText")
@@ -267,6 +289,12 @@ class Game (val playerName: String) extends Stage {
 		drawer.fillText("Press Esc to resume", Const.gameWidth/2, Const.playAreaHeight/2 + fontSize)
 	}
 
+	/** Checks whether two Moveable entities are intersected.
+	 *
+	 *  @param moverA The first mover entity
+	 *  @param moverB The second mover entity
+	 *  @return a boolean value that determines whether moverA and moverB has intersected
+	 */
 	def intersected(moverA: Moveable, moverB: Moveable): Boolean = {
 		val dx = moverB.x - moverA.x
 		val dy = moverB.y - moverA.y
