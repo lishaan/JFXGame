@@ -8,7 +8,7 @@ abstract class Enemy extends Drawable with Moveable with Damageable
 
 /** Factory for [[Enemy]] instances. */
 object Enemy {
-	
+
 	/** Spawns an enemy by the given type of the enemy.
 	 *
 	 *  @param enemyType the type of the enemy

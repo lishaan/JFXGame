@@ -57,6 +57,7 @@ case class Velocity (var speed: Double) {
  *  @param delayTail the ending range of the delay in seconds
  */
 class Spawner (val enemyName: String, val delayHead: Double, val delayTail: Double) {
+
 	/** create a new instance of a Spawner object that spawns at a consistent delay
 	 *  @param enemyName the name of the enemy that needs to be spawn
 	 *  @param delay the consistent delay in seconds
@@ -188,7 +189,3 @@ object Global {
 		Global.size("ShooterBullet" ) = Global.gameScale*SIZE("ShooterBullet")
 	}
 }
-
-/** A Const static object that stores all the variables that stays constant in the game, except that these values can be changed by the Game object depending on settings. */
-// object Const {
-// }

@@ -18,6 +18,8 @@ object Game {
 
 	/** The path of the system's temporary directory to store the highscores.txt file */
 	private val highscoresFilePath: String = System.getProperty("java.io.tmpdir") + "/highscores.txt"
+
+	/** The path of the system's temporary directory */
 	val highscoresDir: String = System.getProperty("java.io.tmpdir") + "/"
 
 	// Copy resources/highscores.txt to temporary directory IF it doesn't already exist there
@@ -25,8 +27,13 @@ object Game {
 		Highscores.createFile
 	}
 
+	/** Determines whether the current game is paused. */
 	var paused: Boolean = false
+
+	/** Determines whether the current game has ended. */
 	var ended: Boolean = false
+
+	/** Determines whether the current game should be replayed with the same player name. */
 	var retry: Boolean = false
 
 	/** Toggles the pausing of the game. */
@@ -270,7 +277,7 @@ class Game (val playerName: String) extends Stage {
 		drawer.fillText("Press R to try again", Global.gameWidth/2, Global.playAreaHeight/2 + (fontSize*2))
 
 		drawer.font = new scalafx.scene.text.Font(fontSize*0.50)
-		drawer.fillText(if (scoreAppended) "Your score has been appended to the highscore" else "You score did not append to the highscore", Global.gameWidth/2, Global.playAreaHeight/2 + (fontSize*3))			
+		drawer.fillText(if (scoreAppended) "Your score has been appended to the highscore" else "Your score did not append to the highscore", Global.gameWidth/2, Global.playAreaHeight/2 + (fontSize*3))			
 	}
 
 	/** Draws the menu that is displayed when a game pauses.
