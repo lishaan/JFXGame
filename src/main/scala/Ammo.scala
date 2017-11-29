@@ -16,14 +16,14 @@ abstract class Ammo extends Drawable with Moveable {
  *  @param playerPos the initial position of the bullet
  */
 class Bullet (playerPos: Position) extends Ammo {
-	val _position: Position = new Position(playerPos.x, playerPos.y - (Const.size("Player")/2))
-	var _speed: Double = Const.speed("Bullet")
-	var _size: Double  = Const.size("Bullet")
-	val _color: Color = Const.color("Bullet")
+	val _position: Position = new Position(playerPos.x, playerPos.y - (Global.size("Player")/2))
+	var _speed: Double = Global.speed("Bullet")
+	var _size: Double  = Global.size("Bullet")
+	val _color: Color = Global.color("Bullet")
 
 	def move = { 
-		speed = Const.speed("Bullet")
-		size = Const.size("Bullet")
+		speed = Global.speed("Bullet")
+		size = Global.size("Bullet")
 		position.moveUp(speed) 
 	}
 
@@ -40,14 +40,14 @@ class Bullet (playerPos: Position) extends Ammo {
  *  @param startPos the initial position of the bullet
  */
 class ShooterBullet (startPos: Position) extends Ammo {
-	val _position: Position = new Position(startPos.x, startPos.y + (Const.size("Shooter")/2))
-	var _speed: Double = Const.speed("ShooterBullet")
-	var _size: Double  = Const.size("ShooterBullet")
-	val _color: Color = Const.color("ShooterBullet")
+	val _position: Position = new Position(startPos.x, startPos.y + (Global.size("Shooter")/2))
+	var _speed: Double = Global.speed("ShooterBullet")
+	var _size: Double  = Global.size("ShooterBullet")
+	val _color: Color = Global.color("ShooterBullet")
 
 	def move = { 
-		speed = Const.speed("ShooterBullet")
-		size = Const.size("ShooterBullet")
+		speed = Global.speed("ShooterBullet")
+		size = Global.size("ShooterBullet")
 		position.moveDown(speed) 
 	}
 

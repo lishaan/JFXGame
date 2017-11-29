@@ -17,16 +17,17 @@ object Game {
 	val name: String = "Spherical Insanity"
 
 	/** The path of the system's temporary directory to store the highscores.txt file */
-	private val highscoresFilePath = System.getProperty("java.io.tmpdir") + "/highscores.txt"
-	val highscoresDir = System.getProperty("java.io.tmpdir") + "/"
+	private val highscoresFilePath: String = System.getProperty("java.io.tmpdir") + "/highscores.txt"
+	val highscoresDir: String = System.getProperty("java.io.tmpdir") + "/"
 
 	// Copy resources/highscores.txt to temporary directory IF it doesn't already exist there
-	private val exists = (java.nio.file.Files.exists(java.nio.file.Paths.get(highscoresFilePath)))
-	if (!exists) Highscores.createFile
+	if (!(java.nio.file.Files.exists(java.nio.file.Paths.get(highscoresFilePath)))) {
+		Highscores.createFile
+	}
 
-	var paused = false
-	var ended = false
-	var retry = false
+	var paused: Boolean = false
+	var ended: Boolean = false
+	var retry: Boolean = false
 
 	/** Toggles the pausing of the game. */
 	def togglePause: Unit = { Game.paused = !Game.paused }
@@ -43,7 +44,7 @@ class Game (val playerName: String) extends Stage {
 	title = s"${Game.name} - Play"
 	resizable = false
 
-	scene = new Scene(Const.gameWidth, Const.gameHeight) {
+	scene = new Scene(Global.gameWidth, Global.gameHeight) {
 		Game.paused = false
 		Game.ended = false
 		Game.retry = false
@@ -58,7 +59,7 @@ class Game (val playerName: String) extends Stage {
 		
 		val player = new Player(playerName)
 		var timerText = new Text(10, 20, "Score: 0.0") {
-			fill = Const.color("TimerText")
+			fill = Global.color("TimerText")
 		}
 
 		var keys = Map (
@@ -73,7 +74,7 @@ class Game (val playerName: String) extends Stage {
 		Global.seconds = seconds
 
 		// Canvas
-		val canvas: Canvas = new Canvas(Const.gameWidth, Const.gameHeight);
+		val canvas: Canvas = new Canvas(Global.gameWidth, Global.gameHeight);
 		val drawer: GraphicsContext = canvas.graphicsContext2D
 
 		var didAppend: Boolean = false
@@ -98,10 +99,10 @@ class Game (val playerName: String) extends Stage {
 				})
 
 				// Drawings
-				drawer.fill = Const.color("Background")
-				drawer.fillRect(0, 0, Const.gameWidth, Const.gameHeight)
-				drawer.fill = Const.color("PlayArea")
-				drawer.fillRect(0, Const.playAreaHeight, Const.gameWidth, Const.playAreaHeight)
+				drawer.fill = Global.color("Background")
+				drawer.fillRect(0, 0, Global.gameWidth, Global.gameHeight)
+				drawer.fill = Global.color("PlayArea")
+				drawer.fillRect(0, Global.playAreaHeight, Global.gameWidth, Global.playAreaHeight)
 
 				player.draw(drawer)
 				player.bullets.foreach(b => b.draw(drawer))
@@ -128,7 +129,7 @@ class Game (val playerName: String) extends Stage {
 						if (playerIsDead) {
 
 							// Highscores
-							if (Const.appendToHighscoresFile)
+							if (Global.appendToHighscoresFile)
 								didAppend = Highscores.append(new Score(player.name, player.kills, seconds))
 
 							Game.ended = true
@@ -163,17 +164,17 @@ class Game (val playerName: String) extends Stage {
 
 
 				// Game speed configuration
-				if (Const.appendToHighscoresFile || (Const.gameScale==1.2 && Const.gameSpeed==1.0)) {					
-					if (seconds >= 10 ) Const.gameSpeed = 1.1
-					if (seconds >= 40 ) Const.gameSpeed = 1.2
-					if (seconds >= 70 ) Const.gameSpeed = 1.3
-					if (seconds >= 110) Const.gameSpeed = 1.4
-					if (seconds >= 160) Const.gameSpeed = 1.5
-					if (seconds >= 220) Const.gameSpeed = 1.6
-					if (seconds >= 290) Const.gameSpeed = 1.7
-					if (seconds >= 360) Const.gameSpeed = 1.8
-					if (seconds >= 450) Const.gameSpeed = 1.9
-					if (seconds >= 550) Const.gameSpeed = 2.0
+				if (Global.appendToHighscoresFile || (Global.gameScale==1.2 && Global.gameSpeed==1.0)) {					
+					if (seconds >= 10 ) Global.gameSpeed = 1.1
+					if (seconds >= 40 ) Global.gameSpeed = 1.2
+					if (seconds >= 70 ) Global.gameSpeed = 1.3
+					if (seconds >= 110) Global.gameSpeed = 1.4
+					if (seconds >= 160) Global.gameSpeed = 1.5
+					if (seconds >= 220) Global.gameSpeed = 1.6
+					if (seconds >= 290) Global.gameSpeed = 1.7
+					if (seconds >= 360) Global.gameSpeed = 1.8
+					if (seconds >= 450) Global.gameSpeed = 1.9
+					if (seconds >= 550) Global.gameSpeed = 2.0
 				}
 
 				seconds += delta
@@ -184,7 +185,9 @@ class Game (val playerName: String) extends Stage {
 			if (Game.paused) drawPausedScreen(drawer)
 			if (Game.ended) drawEndGameScreen(drawer, didAppend)
 			lastTime = timeNow
-			Const.updateConsts
+			Global.updateConsts
+
+			// println("Fps: %.2f".format(1.0/Global.delta))
 		})
 
 		// Key pressed events
@@ -230,7 +233,7 @@ class Game (val playerName: String) extends Stage {
 				case KeyCode.R => {
 					if (Game.ended) {
 						Game.retry = true
-						Const.gameSpeed = 1.0
+						Global.gameSpeed = 1.0
 						timer.stop
 						closeGame
 					}
@@ -253,21 +256,21 @@ class Game (val playerName: String) extends Stage {
 	 *  @param scoreAppended a boolean value that determines whether the score appends to the highscore
 	 */
 	def drawEndGameScreen(drawer: GraphicsContext, scoreAppended: Boolean): Unit = {
-		val fontSize = 20*Const.gameScale
-		drawer.fill = Const.color("PausedText")
+		val fontSize = 20*Global.gameScale
+		drawer.fill = Global.color("PausedText")
 		drawer.textAlign = scalafx.scene.text.TextAlignment.Center
 
 		drawer.font = new scalafx.scene.text.Font(fontSize)
-		drawer.fillText("You Lose", Const.gameWidth/2, Const.playAreaHeight/2)
+		drawer.fillText("You Lose", Global.gameWidth/2, Global.playAreaHeight/2)
 
 		drawer.font = new scalafx.scene.text.Font(fontSize*0.50)
-		drawer.fillText("Press Q to go back to Main Menu", Const.gameWidth/2, Const.playAreaHeight/2 + (fontSize))
+		drawer.fillText("Press Q to go back to Main Menu", Global.gameWidth/2, Global.playAreaHeight/2 + (fontSize))
 
 		drawer.font = new scalafx.scene.text.Font(fontSize*0.50)
-		drawer.fillText("Press R to try again", Const.gameWidth/2, Const.playAreaHeight/2 + (fontSize*2))
+		drawer.fillText("Press R to try again", Global.gameWidth/2, Global.playAreaHeight/2 + (fontSize*2))
 
 		drawer.font = new scalafx.scene.text.Font(fontSize*0.50)
-		drawer.fillText(if (scoreAppended) "Your score has been appended to the highscore" else "You score did not append to the highscore", Const.gameWidth/2, Const.playAreaHeight/2 + (fontSize*3))			
+		drawer.fillText(if (scoreAppended) "Your score has been appended to the highscore" else "You score did not append to the highscore", Global.gameWidth/2, Global.playAreaHeight/2 + (fontSize*3))			
 	}
 
 	/** Draws the menu that is displayed when a game pauses.
@@ -275,18 +278,18 @@ class Game (val playerName: String) extends Stage {
 	 *  @param drawer the graphicsContext of where the menu is drawn
 	 */
 	def drawPausedScreen(drawer: GraphicsContext): Unit = {
-		val fontSize = 20*Const.gameScale
-		drawer.fill = Const.color("PausedText")
+		val fontSize = 20*Global.gameScale
+		drawer.fill = Global.color("PausedText")
 		drawer.textAlign = scalafx.scene.text.TextAlignment.Center
 
 		drawer.font = new scalafx.scene.text.Font(fontSize)
-		drawer.fillText("Game Paused", Const.gameWidth/2, Const.playAreaHeight/2)
+		drawer.fillText("Game Paused", Global.gameWidth/2, Global.playAreaHeight/2)
 
 		drawer.font = new scalafx.scene.text.Font(fontSize*0.50)
-		drawer.fillText("Press Q to go back to Main Menu", Const.gameWidth/2, Const.playAreaHeight/2 + (fontSize*2))
+		drawer.fillText("Press Q to go back to Main Menu", Global.gameWidth/2, Global.playAreaHeight/2 + (fontSize*2))
 
 		drawer.font = new scalafx.scene.text.Font(fontSize*0.50)
-		drawer.fillText("Press Esc to resume", Const.gameWidth/2, Const.playAreaHeight/2 + fontSize)
+		drawer.fillText("Press Esc to resume", Global.gameWidth/2, Global.playAreaHeight/2 + fontSize)
 	}
 
 	/** Checks whether two Moveable entities are intersected.

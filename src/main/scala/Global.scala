@@ -24,11 +24,6 @@ case class Health (max: Double) {
 	 *  @return the current percentage of the health as a Double
 	 */
 	def percentage: Double = current / max
-
-	/**
-	 *  @return a boolean value that determines whether the health of the current Damageable entity is halved.
-	 */
-	def halved: Boolean = { (current / max) <= 1/2 }
 }
 
 /** A Position object that stores the (x, y) coordinates of a Moveable entity.
@@ -89,17 +84,14 @@ class Spawner (val enemyName: String, val delayHead: Double, val delayTail: Doub
 /** A Global static object that stores all the variables that change in the game every iteration of the game loop. */
 object Global {
 	/** The current player [[Position]] */
-	var playerPos: Position = new Position(Const.gameWidth/2, Const.gameHeight-50)
+	var playerPos: Position = new Position(Global.gameWidth/2, Global.gameHeight-50)
 
 	/** The current delta time difference */
 	var delta: Double = 0
 
 	/** The seconds surpassed of the current [[Game]] */
 	var seconds: Double = 0
-}
 
-/** A Const static object that stores all the variables that stays constant in the game, except that these values can be changed by the Game object depending on settings. */
-object Const {
 	/** The scale of the game */
 	var gameScale: Double = 1.2
 
@@ -112,7 +104,7 @@ object Const {
 	val gameHeight: Double = 600
 
 	/** The size of the play area */
-	val playAreaHeight: Double = Const.gameHeight/1.5
+	val playAreaHeight: Double = Global.gameHeight/1.5
 
 	/** Whether the current game should append to the highscore when finished */
 	var appendToHighscoresFile: Boolean = true
@@ -161,38 +153,42 @@ object Const {
 
 	/** The adjusted speeds of the Moveable entities in the game according to the current game's status */
 	val speed: MMap[String, Double] = MMap (
-		"Player"         -> Const.gameSpeed*SPEED("Player"),
-		"Bullet"         -> Const.gameSpeed*SPEED("Bullet"),
-		"Seeker"         -> Const.gameSpeed*SPEED("Seeker"),
-		"Bouncer"        -> Const.gameSpeed*SPEED("Bouncer"),
-		"Shooter"        -> Const.gameSpeed*SPEED("Shooter"),
-		"ShooterBullet"  -> Const.gameSpeed*SPEED("ShooterBullet")
+		"Player"         -> Global.gameSpeed*SPEED("Player"),
+		"Bullet"         -> Global.gameSpeed*SPEED("Bullet"),
+		"Seeker"         -> Global.gameSpeed*SPEED("Seeker"),
+		"Bouncer"        -> Global.gameSpeed*SPEED("Bouncer"),
+		"Shooter"        -> Global.gameSpeed*SPEED("Shooter"),
+		"ShooterBullet"  -> Global.gameSpeed*SPEED("ShooterBullet")
 	)
 
 	/** The adjusted sizes of the Moveable entities in the game according to the current game's status */
 	val size: MMap[String, Double] = MMap (
-		"Player"         -> Const.gameScale*SIZE("Player"),
-		"Bullet"         -> Const.gameScale*SIZE("Bullet"),
-		"Seeker"         -> Const.gameScale*SIZE("Seeker"),
-		"Bouncer"        -> Const.gameScale*SIZE("Bouncer"),
-		"Shooter"        -> Const.gameScale*SIZE("Shooter"),
-		"ShooterBullet"  -> Const.gameScale*SIZE("ShooterBullet")
+		"Player"         -> Global.gameScale*SIZE("Player"),
+		"Bullet"         -> Global.gameScale*SIZE("Bullet"),
+		"Seeker"         -> Global.gameScale*SIZE("Seeker"),
+		"Bouncer"        -> Global.gameScale*SIZE("Bouncer"),
+		"Shooter"        -> Global.gameScale*SIZE("Shooter"),
+		"ShooterBullet"  -> Global.gameScale*SIZE("ShooterBullet")
 	)
 
 	/** Updates all the sizes and the speeds of Moveable entities in the game according to the current status of the game. */
 	def updateConsts: Unit = {
-		Const.speed("Player" ) = Const.gameSpeed*SPEED("Player")
-		Const.speed("Bullet" ) = Const.gameSpeed*SPEED("Bullet")
-		Const.speed("Seeker" ) = Const.gameSpeed*SPEED("Seeker")
-		Const.speed("Bouncer") = Const.gameSpeed*SPEED("Bouncer")
-		Const.speed("Shooter") = Const.gameSpeed*SPEED("Shooter")
-		Const.speed("ShooterBullet" ) = Const.gameSpeed*SPEED("ShooterBullet")
+		Global.speed("Player" ) = Global.gameSpeed*SPEED("Player")
+		Global.speed("Bullet" ) = Global.gameSpeed*SPEED("Bullet")
+		Global.speed("Seeker" ) = Global.gameSpeed*SPEED("Seeker")
+		Global.speed("Bouncer") = Global.gameSpeed*SPEED("Bouncer")
+		Global.speed("Shooter") = Global.gameSpeed*SPEED("Shooter")
+		Global.speed("ShooterBullet" ) = Global.gameSpeed*SPEED("ShooterBullet")
 
-		Const.size("Player" ) = Const.gameScale*SIZE("Player")
-		Const.size("Bullet" ) = Const.gameScale*SIZE("Bullet")
-		Const.size("Seeker" ) = Const.gameScale*SIZE("Seeker")
-		Const.size("Bouncer") = Const.gameScale*SIZE("Bouncer")
-		Const.size("Shooter") = Const.gameScale*SIZE("Shooter")
-		Const.size("ShooterBullet" ) = Const.gameScale*SIZE("ShooterBullet")
+		Global.size("Player" ) = Global.gameScale*SIZE("Player")
+		Global.size("Bullet" ) = Global.gameScale*SIZE("Bullet")
+		Global.size("Seeker" ) = Global.gameScale*SIZE("Seeker")
+		Global.size("Bouncer") = Global.gameScale*SIZE("Bouncer")
+		Global.size("Shooter") = Global.gameScale*SIZE("Shooter")
+		Global.size("ShooterBullet" ) = Global.gameScale*SIZE("ShooterBullet")
 	}
 }
+
+/** A Const static object that stores all the variables that stays constant in the game, except that these values can be changed by the Game object depending on settings. */
+// object Const {
+// }

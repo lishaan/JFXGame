@@ -14,10 +14,10 @@ class Player (playerName: String) extends Drawable with Moveable with Shootable 
     private val _name: String = playerName
 	private var _kills: Int = 0
 
-	val _position: Position = new Position(Const.gameWidth/2, Const.gameHeight-50)
-	var _speed: Double = Const.speed("Player")
-	var _size: Double = Const.size("Player")
-	val _color: Color = Const.color("Player")
+	val _position: Position = new Position(Global.gameWidth/2, Global.gameHeight-50)
+	var _speed: Double = Global.speed("Player")
+	var _size: Double = Global.size("Player")
+	val _color: Color = Global.color("Player")
 
 	def shootBullet: Unit = {
 		_bullets +:= new Bullet(this.position)
@@ -26,17 +26,17 @@ class Player (playerName: String) extends Drawable with Moveable with Shootable 
 	def move = println("Error: Parameter (direction: String) required")
 
 	/** Moves the player at the given direction 
-     *  direction the direction as a String
+     *  @param direction the direction as a String
 	 */
 	def move(direction: String): Unit = {
-		speed = Const.speed("Player")
-		size = Const.size("Player")
+		speed = Global.speed("Player")
+		size = Global.size("Player")
 
-		if (direction.equals("Up") && (position.y-size > Const.playAreaHeight)) {
+		if (direction.equals("Up") && (position.y-size > Global.playAreaHeight)) {
 			position.moveUp(speed)
-		} else if (direction.equals("Right") && (position.x+size < Const.gameWidth)) {
+		} else if (direction.equals("Right") && (position.x+size < Global.gameWidth)) {
 			position.moveRight(speed)
-		} else if (direction.equals("Down") && (position.y+size < Const.gameHeight)) {
+		} else if (direction.equals("Down") && (position.y+size < Global.gameHeight)) {
 			position.moveDown(speed)
 		} else if (direction.equals("Left") && (position.x-size > 0)) {
 			position.moveLeft(speed)

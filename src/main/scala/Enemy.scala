@@ -8,6 +8,7 @@ abstract class Enemy extends Drawable with Moveable with Damageable
 
 /** Factory for [[Enemy]] instances. */
 object Enemy {
+	
 	/** Spawns an enemy by the given type of the enemy.
 	 *
 	 *  @param enemyType the type of the enemy
@@ -29,15 +30,15 @@ object Enemy {
 
 /** An enemy that moves towards the player. */
 class Seeker extends Enemy {
-	val _position: Position = new Position(math.random*Const.gameWidth, 0)
-	var _speed: Double = Const.speed("Seeker")
-	var _size: Double = Const.size("Seeker")
-	val _color: Color = Const.color("Seeker")
-	val _health: Health = Health(Const.health("Seeker"))
+	val _position: Position = new Position(math.random*Global.gameWidth, 0)
+	var _speed: Double = Global.speed("Seeker")
+	var _size: Double = Global.size("Seeker")
+	val _color: Color = Global.color("Seeker")
+	val _health: Health = Health(Global.health("Seeker"))
 
 	def move = {
-		speed = Const.speed("Seeker")
-		size = Const.size("Seeker")
+		speed = Global.speed("Seeker")
+		size = Global.size("Seeker")
 
 		val playerPos: Position = Global.playerPos
 
@@ -71,27 +72,27 @@ class Seeker extends Enemy {
 
 /** An enemy that bounces off the edges of the game scene. */
 class Bouncer extends Enemy {
-	val _position: Position = new Position(Const.gameWidth/2, Const.playAreaHeight/2)
-	var _speed: Double = Const.speed("Bouncer")
-	var _size: Double = Const.size("Bouncer")
-	val _color: Color = Const.color("Bouncer")
-	val _health: Health = Health(Const.health("Bouncer"))
+	val _position: Position = new Position(Global.gameWidth/2, Global.playAreaHeight/2)
+	var _speed: Double = Global.speed("Bouncer")
+	var _size: Double = Global.size("Bouncer")
+	val _color: Color = Global.color("Bouncer")
+	val _health: Health = Health(Global.health("Bouncer"))
 
 	private val _velocity: Velocity = new Velocity(speed)
 
 	def velocity: Velocity = _velocity
 
 	def move = {
-		speed = Const.speed("Bouncer")
-		size = Const.size("Bouncer")
+		speed = Global.speed("Bouncer")
+		size = Global.size("Bouncer")
 		position.x = position.x + velocity.x * Global.delta
 		position.y = position.y + velocity.y * Global.delta
 
-		if (position.x < 0+size || position.x > Const.gameWidth-size) {
+		if (position.x < 0+size || position.x > Global.gameWidth-size) {
 			velocity.x = -velocity.x
 		}
 
-		if (position.y < 0+size || position.y > Const.gameHeight-size) {
+		if (position.y < 0+size || position.y > Global.gameHeight-size) {
 			velocity.y = -velocity.y
 		}
 	}
@@ -121,22 +122,22 @@ class Shooter extends Enemy with Shootable {
 	private var _rotation: Double = 0
 
 	/** The rotation speed of the Shooter. */
-	private var _rotationSpeed: Double = Const.speed("Shooter")*0.60
+	private var _rotationSpeed: Double = Global.speed("Shooter")*0.60
 
 	/** The rotation radius of the Shooter. */
 	private var _rotationRadius: Double = size*4
 
 	/** The rotation position of the Shooter. */
-	private val _rotationPos: Position = new Position(math.random*Const.gameWidth, Const.playAreaHeight/2)
+	private val _rotationPos: Position = new Position(math.random*Global.gameWidth, Global.playAreaHeight/2)
 	val _position: Position = new Position(
 		size*math.cos(_rotationRadius)+_rotationPos.x, 
 		size*math.sin(_rotationRadius)+_rotationPos.y
 	)
 
-	var _speed: Double = Const.speed("Shooter")
-	var _size: Double = Const.size("Shooter")
-	val _color: Color = Const.color("Shooter")
-	val _health: Health = Health(Const.health("Shooter"))
+	var _speed: Double = Global.speed("Shooter")
+	var _size: Double = Global.size("Shooter")
+	val _color: Color = Global.color("Shooter")
+	val _health: Health = Health(Global.health("Shooter"))
 
 	/** The direction of the Shooter. */
 	private var dir: Int = 0
@@ -149,8 +150,8 @@ class Shooter extends Enemy with Shootable {
 	}
 
 	def move = {
-		speed = Const.speed("Shooter")
-		size = Const.size("Shooter")
+		speed = Global.speed("Shooter")
+		size = Global.size("Shooter")
 
 		position.x = size*math.cos(_rotationRadius)+_rotationPos.x + speed * Global.delta
 		position.y = size*math.sin(_rotationRadius)+_rotationPos.y + speed * Global.delta
@@ -167,7 +168,7 @@ class Shooter extends Enemy with Shootable {
 		}
 
 		// Change direction
-		if (_rotationPos.x > Const.gameWidth-size) {
+		if (_rotationPos.x > Global.gameWidth-size) {
 			this.dir = 1
 		} else if (_rotationPos.x < size) {
 			this.dir = 0
@@ -194,103 +195,4 @@ class Shooter extends Enemy with Shootable {
 		// Bullets
 		bullets.foreach(b => b.draw(drawer))
 	}
-}
-
-/** A trait that defines an entity that can shoot an [[Ammo]] object. */
-trait Shootable {
-	protected var _bullets: ArrayBuffer[Ammo] = ArrayBuffer()
-
-	/** The ammo array that stores all the ammo currently in the game scene. */
-	def bullets: ArrayBuffer[Ammo] = _bullets
-
-	/** Manages the bullets array by removing bullets when they go out of the game scene. */
-	def updateBullets: Unit = {
-
-		// Checks if the bullets array is empty or not
-		if (!bullets.isEmpty) {
-			// Creates a buffer that stores all the indexes of the bullets in the bullets array that has to be removed
-			var indexes: ArrayBuffer[Int] = ArrayBuffer()
-
-			// Bullets move
-			for (i <- 0 until bullets.length) {
-				bullets(i).move
-
-				// If the bullet is out of the game scene, add the index to the indexes buffer
-				if (bullets(i).y > Const.gameHeight-bullets(i).size || bullets(i).y < bullets(i).size) {
-					if (!indexes.contains(i)) indexes += i
-				}
-			}
-
-			// Remove all bullets that is out of the game scene
-			indexes.foreach(index => bullets.remove(index))
-		}
-	}
-
-	/** Defines how and when to shoot an Ammo. */
-	def shootBullet: Unit
-}
-
-/** A trait that defines an entity that can be drawn into the game scene. */
-trait Drawable {
-	protected val _color: Color
-
-	/** The color of the [[Drawable]] entitiy. */
-	def color: Color = _color
-
-	/** Defines how the entity is drawn.
-	 *
-	 *  @param drawer the GraphicsContext of where the entity gets drawn
-	 */
-	def draw(drawer: GraphicsContext): Unit
-}
-
-/** A trait that defines an entity that can move around the game scene. */
-trait Moveable {
-	protected val _position: Position
-	protected var _speed: Double
-	protected var _size: Double
-
-	/** The current position of the Moveable entity */
-	def position: Position = _position
-
-	/** The current speed of the Moveable entity */
-	def speed: Double = _speed
-
-	/** The current size of the Moveable entity */
-	def size: Double = _size
-	
-	/** The current x coordinate of the Moveable entity */
-	def x: Double = _position.x
-
-	/** The current y coordinate of the Moveable entity */
-	def y: Double = _position.y
-
-	def speed_=(speed: Double) = { _speed = speed }
-	def size_=(size: Double) = { _size = size }
-
-	/** Defines how the entity moves around the game scene. */
-	def move: Unit
-
-	/** Removes the entity from the game scene. */
-	def remove: Unit = { _position.x = -800 }
-}
-
-/** A trait that defines an entity that can be damaged. */
-trait Damageable {
-	protected val _health: Health
-
-	/** Checks whether the damageable entity is dead. */
-	def dead: Boolean = (_health.current <= 0)
-
-	/** Checks whether the damageable entity is alive. */
-	def alive: Boolean = !dead
-
-	/** Returns the current health object of the Damageable entity */
-	def health: Health = _health
-
-	/** Deducts health by the given damage.
-	 *
-	 *  @param damage the damage given
-	 */
-	def inflictDamage(damage: Double): Unit = { _health.current = _health.current - damage }
 }
