@@ -192,7 +192,7 @@ class Game (val playerName: String) extends Stage {
 			if (Game.paused) drawPausedScreen(drawer)
 			if (Game.ended) drawEndGameScreen(drawer, didAppend)
 			lastTime = timeNow
-			Global.updateConsts
+			Global.updateStats
 
 			// println("Fps: %.2f".format(1.0/Global.delta))
 		})

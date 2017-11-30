@@ -266,7 +266,7 @@ class GameSetup (_width: Double, _height: Double) extends Scene (_width, _height
 
 			Global.gameSpeed = gameSpeed_slider.getValue()
 			Global.gameScale = gameScale_slider.getValue() + 0.2
-			Global.updateConsts
+			Global.updateStats
 
 			App.stage.hide
 			App.stage.scene = new MainMenu

@@ -173,7 +173,7 @@ object Global {
 	)
 
 	/** Updates all the sizes and the speeds of Moveable entities in the game according to the current status of the game. */
-	def updateConsts: Unit = {
+	def updateStats: Unit = {
 		Global.speed("Player" ) = Global.gameSpeed*SPEED("Player")
 		Global.speed("Bullet" ) = Global.gameSpeed*SPEED("Bullet")
 		Global.speed("Seeker" ) = Global.gameSpeed*SPEED("Seeker")
